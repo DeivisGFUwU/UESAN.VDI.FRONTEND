@@ -128,7 +128,7 @@ export default {
   background-repeat: no-repeat;
   background-position: center;
   min-height: 100vh;
-  color: white;
+  color: rgba(255, 255, 255, 0.899);
 }
 
 .titulo-container {
