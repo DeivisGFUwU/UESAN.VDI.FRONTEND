@@ -1,7 +1,7 @@
 const routes = [
   {
     path: '/',
-    redirect: '/login',
+    redirect: '/revistas-gestion', // Ahora la app inicia en RevistasGestion.vue
   },
   {
     path: '/login',
@@ -15,9 +15,14 @@ const routes = [
     path: '/recuperar',
     component: () => import('components/auth/UpdateForm.vue'),
   },
-
-  // Always leave this as last one,
-  // but you can also remove it
+  {
+    path: '/investigacion-form',
+    component: () => import('components/auth/InvestigacionForm.vue'),
+  },
+  {
+    path: '/revistas-gestion',
+    component: () => import('components/auth/RevistasGestion.vue'),
+  },
   {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue'),
