@@ -1,10 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-// Importa los componentes correctamente
+// Importación de los componentes
 import Login from 'src/components/components/LoginForm.vue' // Ruta del login
 import RegisterForm from 'src/components/components/RegisterForm.vue' // Ruta de registro
 import UpdateForm from 'src/components/components/UpdateForm.vue' // Ruta de actualización de contraseña
 import MenuLibre from 'src/components/components/MenuLibre.vue' // Ruta del menú libre
+import CrearListarPublicacion from 'src/components/components/CrearListarPublicacion.vue' // Ruta para "Crear y Listar Publicaciones"
 
 const routes = [
   {
@@ -30,6 +31,11 @@ const routes = [
     path: '/menu-libre',
     name: 'MenuLibre',
     component: MenuLibre, // Ruta del menú libre
+  },
+  {
+    path: '/crear-listar-publicacion', // Nueva ruta para crear y listar publicaciones
+    name: 'CrearListarPublicacion',
+    component: CrearListarPublicacion, // Componente de Crear y Listar Publicaciones
   },
   {
     path: '/:pathMatch(.*)*',

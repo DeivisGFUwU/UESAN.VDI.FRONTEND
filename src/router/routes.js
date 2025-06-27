@@ -1,33 +1,32 @@
+import { createRouter, createWebHistory } from 'vue-router'
+import Login from 'src/components/components/LoginForm.vue'
+import CrearListarPublicacion from 'src/components/components/CrearListarPublicacion.vue' // Nueva importación
+
 const routes = [
   {
     path: '/',
-    redirect: '/login', // Redirige a la página de login por defecto
+    redirect: '/login',
   },
   {
     path: '/login',
     name: 'Login',
-    component: () => import('src/components/components/LoginForm.vue'), // Ruta del login
+    component: Login,
   },
   {
-    path: '/register',
-    name: 'Register',
-    component: () => import('src/components/components/RegisterForm.vue'), // Ruta de registro
+    path: '/crear-listar-publicacion', // Nueva ruta
+    name: 'CrearListarPublicacion',
+    component: CrearListarPublicacion, // Componente de crear y listar publicaciones
   },
   {
-    path: '/recuperar',
-    name: 'Recuperar',
-    component: () => import('src/components/components/UpdateForm.vue'), // Ruta de actualización de contraseña
-  },
-  {
-    path: '/menu-libre',
-    name: 'MenuLibre',
-    component: () => import('src/components/components/MenuLibre.vue'), // Ruta del menú libre
-  },
-  {
-    path: '/:catchAll(.*)*',
+    path: '/:pathMatch(.*)*',
     name: 'ErrorNotFound',
-    component: () => import('src/pages/ErrorNotFound.vue'), // Página de error si la ruta no existe
+    component: () => import('src/pages/ErrorNotFound.vue'),
   },
 ]
 
-export default routes
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+})
+
+export default router

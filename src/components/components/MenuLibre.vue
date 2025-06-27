@@ -1,9 +1,9 @@
 <template>
   <q-layout view="hHh lpR fFf">
-    <!-- Cabecera con el logo y el texto en la parte izquierda, y el botón de cerrar sesión -->
+    <!-- Cabecera con el logo en la parte izquierda y el botón de cerrar sesión -->
     <q-header elevated class="header">
       <q-toolbar>
-        <q-toolbar-title class="title">
+        <q-toolbar-title>
           <img src="/icons/Logo_VDI.png" alt="Logo ESAN VDI" height="40" />
           <span class="text-white">BIENVENIDO!</span>
         </q-toolbar-title>
@@ -42,53 +42,13 @@
     <!-- Menú desplegable -->
     <q-page-container>
       <q-page class="q-pa-md">
-        <div class="user-section">
-          <h3 class="text-white">Hola, Fabrissio Keith Fasabi Rivera</h3>
-        </div>
-
-        <!-- Menú desplegable: Recursos -->
-        <q-item clickable @click="toggleDropdown('recursos')">
-          <q-item-section>Recursos</q-item-section>
-          <q-item-side :arrow="isOpen('recursos') ? 'down' : 'right'" />
-        </q-item>
-        <q-expansion-item v-if="isOpen('recursos')" label="Recursos para el Investigador">
-          <q-item clickable><q-item-section>1</q-item-section></q-item>
-          <q-item clickable><q-item-section>2</q-item-section></q-item>
-          <q-item clickable><q-item-section>3</q-item-section></q-item>
-        </q-expansion-item>
-
-        <!-- Menú desplegable: Proyectos -->
-        <q-item clickable @click="toggleDropdown('proyectos')">
-          <q-item-section>Proyectos</q-item-section>
-          <q-item-side :arrow="isOpen('proyectos') ? 'down' : 'right'" />
-        </q-item>
-        <q-expansion-item v-if="isOpen('proyectos')" label="Proyectos en Desarrollo">
-          <q-item clickable><q-item-section>1</q-item-section></q-item>
-          <q-item clickable><q-item-section>2</q-item-section></q-item>
-          <q-item clickable><q-item-section>3</q-item-section></q-item>
-        </q-expansion-item>
-
-        <!-- Menú desplegable: Publicaciones -->
-        <q-item clickable @click="toggleDropdown('publicaciones')">
-          <q-item-section>Publicaciones</q-item-section>
-          <q-item-side :arrow="isOpen('publicaciones') ? 'down' : 'right'" />
-        </q-item>
-        <q-expansion-item v-if="isOpen('publicaciones')" label="Publicaciones Recientes">
-          <q-item clickable><q-item-section>1</q-item-section></q-item>
-          <q-item clickable><q-item-section>2</q-item-section></q-item>
-          <q-item clickable><q-item-section>3</q-item-section></q-item>
-        </q-expansion-item>
-
-        <!-- Menú desplegable: Políticas Institucionales -->
-        <q-item clickable @click="toggleDropdown('politicas')">
-          <q-item-section>Políticas Institucionales</q-item-section>
-          <q-item-side :arrow="isOpen('politicas') ? 'down' : 'right'" />
-        </q-item>
-        <q-expansion-item v-if="isOpen('politicas')" label="Políticas Institucionales">
-          <q-item clickable><q-item-section>1</q-item-section></q-item>
-          <q-item clickable><q-item-section>2</q-item-section></q-item>
-          <q-item clickable><q-item-section>3</q-item-section></q-item>
-        </q-expansion-item>
+        <!-- Botón para Crear y Listar Publicaciones -->
+        <q-btn
+          label="Crear y Listar Publicaciones"
+          color="secondary"
+          class="q-mt-md"
+          @click="irACrearListarPublicacion"
+        />
       </q-page>
     </q-page-container>
   </q-layout>
@@ -99,9 +59,9 @@ export default {
   name: 'MenuLibre',
   data() {
     return {
-      openItems: {}, // Aquí guardamos el estado de los elementos abiertos
-      imageUrls: ['/icons/Portada.png', '/icons/Registro.png'], // Las imágenes del carrusel
-      currentImage: 0, // Índice de la imagen actual
+      openItems: {},
+      imageUrls: ['/icons/Portada.png', '/icons/Registro.png'],
+      currentImage: 0,
     }
   },
   methods: {
@@ -130,6 +90,11 @@ export default {
       localStorage.removeItem('jwt')
       this.$router.push('/login')
     },
+
+    // Redirige a la página de Crear y Listar Publicaciones
+    irACrearListarPublicacion() {
+      this.$router.push('/crear-listar-publicacion')
+    },
   },
 }
 </script>
@@ -139,11 +104,11 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #2d2d2d; /* Fondo oscuro */
+  background-color: #000000; /* Fondo negro */
 }
 
 .header {
-  background-color: #1a1a1a; /* Fondo más oscuro para la cabecera */
+  background-color: #1a1a1a;
   color: white;
 }
 
@@ -159,38 +124,7 @@ export default {
   margin-left: auto;
 }
 
-.user-section {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px;
-  color: white;
-}
-
-h3 {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.q-btn {
-  width: 200px;
-}
-
-.menu-section {
-  margin-top: 20px;
-}
-
-.q-item-section {
-  font-size: 16px;
-}
-
-.q-item-side {
-  margin-left: auto;
-}
-
-/* Estilos para el carrusel de imágenes */
+/* Estilo del carrusel de imágenes */
 .carousel-container {
   position: relative;
   width: 100%;
@@ -228,7 +162,7 @@ h3 {
 
 /* Estilo de los botones */
 .q-btn {
-  background-color: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente */
+  background-color: rgba(0, 0, 0, 0.5);
   color: white;
   font-size: 24px;
 }
