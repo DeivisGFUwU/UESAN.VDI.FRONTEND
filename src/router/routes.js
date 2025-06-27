@@ -1,13 +1,19 @@
 const routes = [
-  /*{
-    path: '/',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: () => import('components/auth/LoginForm.vue') }],
-  },*/
-
   {
     path: '/',
+    redirect: '/login',
+  },
+  {
+    path: '/login',
     component: () => import('components/auth/LoginForm.vue'),
+  },
+  {
+    path: '/register',
+    component: () => import('components/auth/RegisterForm.vue'),
+  },
+  {
+    path: '/recuperar',
+    component: () => import('components/auth/UpdateForm.vue'),
   },
 
   // Always leave this as last one,

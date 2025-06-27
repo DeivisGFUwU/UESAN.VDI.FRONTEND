@@ -1,13 +1,51 @@
 <template>
-  <q-form @submit.prevent="iniciarSesion">
-    <q-input filled v-model="Email" label="Correo" type="email" required />
-    <q-input filled v-model="Password" label="Contraseña" type="password" required />
-    <q-checkbox v-model="acceptTerms" label="Acepto los términos y condiciones" class="q-mt-sm" />
-    <q-btn label="Ingresar" type="submit" color="primary" class="q-mt-md" />
-    <div class="q-mt-sm">
-      <router-link to="/register">¿No tienes cuenta? Regístrate</router-link>
-    </div>
-  </q-form>
+  <div class="relative min-h-screen w-full flex items-center justify-center font-sans">
+    <div class="login-bg" aria-hidden="true"></div>
+    <!-- <div class="login-overlay" aria-hidden="true"></div> -->
+    <q-card
+      class="q-pa-xl q-mx-auto q-mt-xl q-mb-xl shadow-10"
+      style="min-width: 320px; max-width: 350px; background: rgba(255, 255, 255, 0.85)"
+    >
+      <q-form @submit.prevent="iniciarSesion">
+        <p class="text-center q-mb-md">Bienvenido de nuevo, ingresa tus datos</p>
+        <q-input filled v-model="Email" label="Correo" type="email" required class="q-mb-md" />
+        <q-input
+          filled
+          v-model="Password"
+          :type="showPassword ? 'text' : 'password'"
+          label="Contraseña"
+          required
+          class="q-mb-md"
+        >
+          <template v-slot:append>
+            <q-checkbox
+              v-model="showPassword"
+              size="sm"
+              :label="showPassword ? 'Ocultar' : 'Mostrar'"
+              class="ml-1 text-xs p-0"
+            />
+          </template>
+        </q-input>
+        <q-btn
+          label="Ingresar"
+          type="submit"
+          color="esan-primary"
+          class="full-width q-mb-md"
+          style="background-color: #b80000"
+        />
+        <div class="q-mb-sm text-center">
+          <router-link to="/register" class="text-esan-primary hover:underline"
+            >¿No tienes cuenta? Regístrate</router-link
+          >
+        </div>
+        <div class="text-center">
+          <router-link to="/recuperar" class="text-esan-accent hover:underline">
+            ¿Olvidaste tu contraseña?
+          </router-link>
+        </div>
+      </q-form>
+    </q-card>
+  </div>
 </template>
 
 <script>
@@ -16,19 +54,11 @@ export default {
     return {
       Email: '',
       Password: '',
-      acceptTerms: false,
+      showPassword: false,
     }
   },
   methods: {
     iniciarSesion() {
-      if (!this.acceptTerms) {
-        this.$q.notify({
-          type: 'negative',
-          message: 'Debes aceptar los términos y condiciones para continuar.',
-        })
-        return
-      }
-
       const endpointURL = '/api/usuarios/signIn' // Ajusta la URL según tu backend
       const user = {
         Correo: this.Email,
@@ -39,6 +69,10 @@ export default {
         .post(endpointURL, user)
         .then((response) => {
           if (response.data && (response.data.success || response.status === 200)) {
+            // Guardar el JWT en localStorage
+            if (response.data.token) {
+              localStorage.setItem('jwt', response.data.token)
+            }
             this.$q.notify({
               type: 'positive',
               message: 'Inicio de sesión exitoso.',
@@ -71,16 +105,92 @@ export default {
     onReset() {
       this.Email = ''
       this.Password = ''
-      this.acceptTerms = false
     },
   },
 }
 </script>
 
 <style scoped>
-.q-form {
-  max-width: 350px;
-  margin: 0 auto;
-  padding: 2rem;
+/* Tailwind se encarga del diseño visual */
+
+/* Override Quasar blue with ESAN institutional color for q-input borders and labels */
+:deep(.q-field--focused .q-field__control:after) {
+  border-bottom: 2px solid #b80000 !important; /* ESAN primary */
+}
+:deep(.q-field__label--active),
+:deep(.q-field--focused .q-field__label) {
+  color: #b80000 !important; /* ESAN primary */
+}
+:deep(.q-field__control:after) {
+  border-bottom: 2px solid #b80000 !important;
+}
+:deep(.q-field__control:before) {
+  border-bottom: 1px solid #b80000 !important;
+}
+:deep(.q-field__native) {
+  color: #222 !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+/* Override Quasar input label and border colors to use Tailwind palette */
+:deep(.q-field--filled .q-field__control) {
+  background-color: transparent !important;
+}
+:deep(.q-field__label) {
+  color: theme('colors.esan.primary.DEFAULT') !important;
+  /* fallback for browsers not supporting theme() */
+  color: #b80000 !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+}
+:deep(.q-field--focused .q-field__label) {
+  color: theme('colors.esan.primary.DEFAULT') !important;
+  color: #b80000 !important;
+}
+:deep(.q-field__control:after) {
+  border-bottom: 2px solid #b80000 !important;
+}
+:deep(.q-field--focused .q-field__control:after) {
+  border-bottom: 2.5px solid #b80000 !important;
+}
+:deep(.q-field--error .q-field__label) {
+  color: #dc2626 !important; /* Tailwind red-600 for error */
+}
+:deep(.q-field--error .q-field__control:after) {
+  border-bottom: 2px solid #dc2626 !important;
+}
+
+/* Fondo con imagen Portada.png */
+.login-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  background-image: url('/icons/Portada.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 1;
+}
+
+/* Overlay oscuro sobre la imagen de fondo */
+.login-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+/* Reducir el tamaño del label del checkbox de mostrar/ocultar contraseña */
+:deep(.q-checkbox__label) {
+  font-size: 11px !important;
+  padding-left: 2px !important;
+  margin-left: 0 !important;
+  line-height: 1.1 !important;
 }
 </style>
