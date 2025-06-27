@@ -1,20 +1,22 @@
 <template>
-  <div class="relative min-h-screen w-full flex items-center justify-center font-sans bg-gray-100">
+  <div class="register-container">
     <q-card
-      class="q-pa-xl q-mx-auto q-mt-xl q-mb-xl shadow-10 executive-bg"
-      style="min-width: 400px; max-width: 480px"
+      class="q-pa-xl q-mx-auto q-mt-xl q-mb-xl shadow-10 register-card"
+      style="min-width: 380px; max-width: 480px; background: rgba(255, 255, 255, 0.9)"
     >
       <q-form @submit.prevent="registrarUsuario">
-        <p class="text-center q-mb-md">Crea tu cuenta</p>
-        <q-input filled v-model="nombre" label="Nombre" required class="q-mb-md" />
-        <q-input filled v-model="apellido" label="Apellido" required class="q-mb-md" />
+        <p class="text-center q-mb-md text-2xl font-bold text-red-600">Crea tu cuenta</p>
+
+        <!-- Campos del formulario -->
+        <q-input filled v-model="nombre" label="Nombre" required class="q-mb-md input-field" />
+        <q-input filled v-model="apellido" label="Apellido" required class="q-mb-md input-field" />
         <q-input
           filled
           v-model="correo"
           label="Correo"
           type="email"
           required
-          class="q-mb-md"
+          class="q-mb-md input-field"
           :rules="[
             (val) => !!val || 'El correo es obligatorio',
             (val) => /.+@.+\..+/.test(val) || 'Ingresa un correo válido',
@@ -26,7 +28,7 @@
           label="Contraseña"
           type="password"
           required
-          class="q-mb-md"
+          class="q-mb-md input-field"
         />
         <q-input
           filled
@@ -34,19 +36,22 @@
           label="Confirmar contraseña"
           type="password"
           required
-          class="q-mb-md"
+          class="q-mb-md input-field"
           :error="passwordError"
           :error-message="passwordErrorMsg"
         />
+
+        <!-- Botón de registro -->
         <q-btn
           label="Registrarse"
           type="submit"
           color="esan-primary"
-          class="full-width q-mb-md"
-          style="background-color: #b80000"
+          class="full-width q-mb-md btn-submit"
         />
+
+        <!-- Enlace de inicio de sesión -->
         <div class="q-mb-sm text-center">
-          <router-link to="/login" class="text-esan-primary hover:underline">
+          <router-link to="/login" class="text-esan-primary hover:underline text-lg">
             ¿Ya tienes cuenta? Inicia sesión
           </router-link>
         </div>
@@ -72,11 +77,14 @@ export default {
     registrarUsuario() {
       this.passwordError = false
       this.passwordErrorMsg = ''
+
+      // Validación de contraseñas
       if (this.password !== this.confirmPassword) {
         this.passwordError = true
         this.passwordErrorMsg = 'Las contraseñas no coinciden.'
         return
       }
+
       const endpointURL = '/api/usuarios/registrar' // Ajusta la URL según tu backend
       const user = {
         nombre: this.nombre,
@@ -84,6 +92,7 @@ export default {
         correo: this.correo,
         password: this.password,
       }
+
       this.$api
         .post(endpointURL, user)
         .then(() => {
@@ -111,53 +120,58 @@ export default {
 </script>
 
 <style scoped>
-/* Override Quasar blue with ESAN institutional color for q-input borders and labels */
-:deep(.q-field--focused .q-field__control:after) {
-  border-bottom: 2px solid #b80000 !important; /* ESAN primary */
+/* Estilo de la imagen de fondo */
+.register-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-image: url('/icons/Registro.png'); /* Ajusta la ruta de la imagen */
+  background-size: cover;
+  background-position: center;
+  opacity: 0.85;
+  z-index: -1; /* Asegúrate de que la imagen de fondo esté detrás del formulario */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
+/* Estilos adicionales para la tarjeta de formulario */
+.register-card {
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  padding: 30px;
+  background-color: rgba(255, 255, 255, 0.9);
+  transition: all 0.3s ease-in-out;
+}
+
+/* Estilo de los campos de entrada */
+.input-field {
+  font-size: 18px;
+  height: 50px;
+}
+
+/* Estilo del botón de registro */
+.btn-submit {
+  font-size: 18px;
+  padding: 15px;
+  background-color: #b80000;
+  color: white;
+  border-radius: 12px;
+}
+
+.q-btn:hover {
+  background-color: #a60000;
+}
+
+/* Validación de contraseñas */
+:deep(.q-field--focused .q-field__control:after) {
+  border-bottom: 2px solid #b80000 !important;
+}
+
 :deep(.q-field__label--active),
 :deep(.q-field--focused .q-field__label) {
-  color: #b80000 !important; /* ESAN primary */
-}
-:deep(.q-field__control:after) {
-  border-bottom: 2px solid #b80000 !important;
-}
-:deep(.q-field__control:before) {
-  border-bottom: 1px solid #b80000 !important;
-}
-:deep(.q-field__native) {
-  color: #222 !important;
-  font-family: 'Inter', sans-serif !important;
-}
-:deep(.q-field--filled .q-field__control) {
-  background-color: transparent !important;
-}
-:deep(.q-field__label) {
-  color: theme('colors.esan.primary.DEFAULT') !important;
   color: #b80000 !important;
-  font-family: 'Inter', sans-serif !important;
-  font-weight: 600 !important;
-}
-:deep(.q-field--focused .q-field__label) {
-  color: theme('colors.esan.primary.DEFAULT') !important;
-  color: #b80000 !important;
-}
-:deep(.q-field__control:after) {
-  border-bottom: 2px solid #b80000 !important;
-}
-:deep(.q-field--focused .q-field__control:after) {
-  border-bottom: 2.5px solid #b80000 !important;
-}
-:deep(.q-field--error .q-field__label) {
-  color: #dc2626 !important; /* Tailwind red-600 for error */
-}
-:deep(.q-field--error .q-field__control:after) {
-  border-bottom: 2px solid #dc2626 !important;
-}
-.executive-bg {
-  background: rgba(255, 255, 255, 0.7) !important;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-  border-radius: 18px;
 }
 </style>

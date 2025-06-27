@@ -1,26 +1,32 @@
 const routes = [
   {
     path: '/',
-    redirect: '/login',
+    redirect: '/login', // Redirige a la página de login por defecto
   },
   {
     path: '/login',
-    component: () => import('components/auth/LoginForm.vue'),
+    name: 'Login',
+    component: () => import('src/components/components/LoginForm.vue'), // Ruta del login
   },
   {
     path: '/register',
-    component: () => import('components/auth/RegisterForm.vue'),
+    name: 'Register',
+    component: () => import('src/components/components/RegisterForm.vue'), // Ruta de registro
   },
   {
     path: '/recuperar',
-    component: () => import('components/auth/UpdateForm.vue'),
+    name: 'Recuperar',
+    component: () => import('src/components/components/UpdateForm.vue'), // Ruta de actualización de contraseña
   },
-
-  // Always leave this as last one,
-  // but you can also remove it
+  {
+    path: '/menu-libre',
+    name: 'MenuLibre',
+    component: () => import('src/components/components/MenuLibre.vue'), // Ruta del menú libre
+  },
   {
     path: '/:catchAll(.*)*',
-    component: () => import('pages/ErrorNotFound.vue'),
+    name: 'ErrorNotFound',
+    component: () => import('src/pages/ErrorNotFound.vue'), // Página de error si la ruta no existe
   },
 ]
 
