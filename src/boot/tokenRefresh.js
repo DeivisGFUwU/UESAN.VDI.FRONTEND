@@ -9,7 +9,7 @@ let refreshTimeout = null
 let lastActivity = Date.now()
 const INACTIVITY_LIMIT = 30 * 60 * 1000 // 30 minutos de inactividad
 
-function parseJwt(token) {
+export function parseJwt(token) {
   try {
     const base64Url = token.split('.')[1]
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')

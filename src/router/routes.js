@@ -1,7 +1,22 @@
 const routes = [
   {
     path: '/',
-    redirect: '/login',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {
+        path: '',
+        component: () => import('pages/IndexPage.vue'), // Cambia por tu página principal
+      },
+      {
+        path: 'perfil',
+        component: () => import('pages/PerfilPage.vue'), // Cambia por tu página de perfil si existe
+      },
+      {
+        path: 'chat',
+        component: () => import('pages/ChatPage.vue'), // Cambia por tu página de chat si existe
+      },
+      // Agrega más rutas hijas aquí según sea necesario
+    ],
   },
   {
     path: '/login',
@@ -15,9 +30,6 @@ const routes = [
     path: '/recuperar',
     component: () => import('components/auth/UpdateForm.vue'),
   },
-
-  // Always leave this as last one,
-  // but you can also remove it
   {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue'),

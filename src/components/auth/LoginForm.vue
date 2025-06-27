@@ -49,6 +49,8 @@
 </template>
 
 <script>
+import RespJWT from '../../models/RespJWT'
+
 export default {
   data() {
     return {
@@ -70,8 +72,21 @@ export default {
         .then((response) => {
           if (response.data && (response.data.success || response.status === 200)) {
             // Guardar el JWT en localStorage
-            if (response.data.token) {
-              localStorage.setItem('jwt', response.data.token)
+            if (response.data.jwt) {
+              localStorage.setItem('jwt', response.data.jwt)
+            }
+            // Guardar datos de usuario en localStorage (JSON raíz)
+            if (response.data) {
+              const raw = response.data
+              const usuarioMapeado = {
+                id: raw.usuarioId,
+                nombre: raw.nombre,
+                apellido: raw.apellido,
+                email: raw.correo,
+                rol: raw.roleId,
+              }
+              console.log('Usuario mapeado:', usuarioMapeado)
+              RespJWT.saveToLocalStorage(usuarioMapeado)
             }
             this.$q.notify({
               type: 'positive',
