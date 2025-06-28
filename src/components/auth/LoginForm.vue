@@ -1,14 +1,19 @@
 <template>
   <div class="relative min-h-screen w-full flex items-center justify-center font-sans">
     <div class="login-bg" aria-hidden="true"></div>
-    <!-- <div class="login-overlay" aria-hidden="true"></div> -->
+
     <q-card
       class="q-pa-xl q-mx-auto q-mt-xl q-mb-xl shadow-10"
       style="min-width: 320px; max-width: 350px; background: rgba(255, 255, 255, 0.85)"
     >
       <q-form @submit.prevent="iniciarSesion">
-        <p class="text-center q-mb-md">Bienvenido de nuevo, ingresa tus datos</p>
+        <!-- Título modificado para que sea más grande -->
+        <p class="text-center q-mb-md text-4xl font-bold text-red-600">INGRESE SUS DATOS</p>
+
+        <!-- Campo de correo -->
         <q-input filled v-model="Email" label="Correo" type="email" required class="q-mb-md" />
+
+        <!-- Campo de la contraseña -->
         <q-input
           filled
           v-model="Password"
@@ -18,6 +23,7 @@
           class="q-mb-md"
         >
           <template v-slot:append>
+            <!-- Opción de mostrar u ocultar contraseña debajo del campo -->
             <q-checkbox
               v-model="showPassword"
               size="sm"
@@ -26,6 +32,8 @@
             />
           </template>
         </q-input>
+
+        <!-- Botón de Ingreso -->
         <q-btn
           label="Ingresar"
           type="submit"
@@ -33,13 +41,17 @@
           class="full-width q-mb-md"
           style="background-color: #b80000"
         />
+
+        <!-- Enlace para registrarse -->
         <div class="q-mb-sm text-center">
-          <router-link to="/register" class="text-esan-primary hover:underline"
-            >¿No tienes cuenta? Regístrate</router-link
-          >
+          <router-link to="/register" class="text-esan-primary hover:underline text-lg">
+            ¿No tienes cuenta? Regístrate
+          </router-link>
         </div>
+
+        <!-- Enlace para recuperar la contraseña -->
         <div class="text-center">
-          <router-link to="/recuperar" class="text-esan-accent hover:underline">
+          <router-link to="/recuperar" class="text-esan-accent hover:underline text-lg">
             ¿Olvidaste tu contraseña?
           </router-link>
         </div>
@@ -126,7 +138,29 @@ export default {
 </script>
 
 <style scoped>
-/* Tailwind se encarga del diseño visual */
+/* Fondo con imagen Portada.png */
+.login-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  background-image: url('/icons/Portada.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 1;
+}
+
+/* Estilos adicionales para el card */
+.q-card {
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  padding: 30px;
+  background-color: rgba(255, 255, 255, 0.9);
+  transition: all 0.3s ease-in-out;
+}
 
 /* Override Quasar blue with ESAN institutional color for q-input borders and labels */
 :deep(.q-field--focused .q-field__control:after) {
@@ -153,7 +187,6 @@ export default {
 }
 :deep(.q-field__label) {
   color: theme('colors.esan.primary.DEFAULT') !important;
-  /* fallback for browsers not supporting theme() */
   color: #b80000 !important;
   font-family: 'Inter', sans-serif !important;
   font-weight: 600 !important;
@@ -173,32 +206,6 @@ export default {
 }
 :deep(.q-field--error .q-field__control:after) {
   border-bottom: 2px solid #dc2626 !important;
-}
-
-/* Fondo con imagen Portada.png */
-.login-bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -2;
-  background-image: url('/icons/Portada.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 1;
-}
-
-/* Overlay oscuro sobre la imagen de fondo */
-.login-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -1;
-  background: rgba(0, 0, 0, 0.35);
 }
 
 /* Reducir el tamaño del label del checkbox de mostrar/ocultar contraseña */
