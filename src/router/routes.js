@@ -5,33 +5,44 @@ const routes = [
     children: [
       {
         path: '',
-        component: () => import('pages/IndexPage.vue'), // Cambia por tu página principal
+        name: 'Inicio',
+        component: () => import('pages/IndexPage.vue'),
       },
       {
         path: 'perfil',
-        component: () => import('pages/PerfilPage.vue'), // Cambia por tu página de perfil si existe
+        name: 'Perfil',
+        component: () => import('pages/PerfilPage.vue'),
       },
       {
         path: 'chat',
-        component: () => import('pages/ChatPage.vue'), // Cambia por tu página de chat si existe
+        name: 'Chat',
+        component: () => import('pages/ChatPage.vue'),
       },
-      // Agrega más rutas hijas aquí según sea necesario
+      {
+        path: 'crear-listar-publicacion',
+        name: 'CrearListarPublicacion',
+        component: () => import('pages/CrearListarPublicacion.vue'),
+      },
     ],
   },
   {
     path: '/login',
+    name: 'Login',
     component: () => import('components/auth/LoginForm.vue'),
   },
   {
     path: '/register',
+    name: 'Register',
     component: () => import('components/auth/RegisterForm.vue'),
   },
   {
     path: '/recuperar',
+    name: 'Recuperar',
     component: () => import('components/auth/UpdateForm.vue'),
   },
   {
     path: '/:catchAll(.*)*',
+    name: 'Error404',
     component: () => import('pages/ErrorNotFound.vue'),
   },
 ]

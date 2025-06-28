@@ -1,172 +1,139 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <!-- Encabezado principal -->
-    <q-header elevated class="bg-esan-primary text-white shadow-10">
-      <q-toolbar class="font-sans">
-        <!-- Botón para abrir el left drawer -->
-        <q-btn flat round dense icon="menu" @click="leftDrawerOpen = !leftDrawerOpen" />
-
-        <!-- Imagen y nombre de usuario -->
-        <q-btn flat class="row items-center q-ml-md" @click="goToProfile" style="min-width: 0">
-          <q-avatar size="32px">
-            <img :src="userImage" alt="User" />
-          </q-avatar>
-          <span
-            class="q-ml-sm font-semibold text-base"
-            style="color: #fff; font-family: 'Inter', sans-serif"
-            >{{ userName }}</span
-          >
-        </q-btn>
-        <q-btn
-          flat
-          round
-          dense
-          icon="logout"
-          @click="logout"
-          class="q-ml-sm"
-          :aria-label="'Cerrar sesión'"
-        />
-
-        <q-space />
-
-        <!-- Logo institucional a la derecha -->
-        <div class="flex items-center q-ml-md">
-          <div class="text-center mr-2 leading-tight">
-            <span
-              class="block text-[10px] text-white font-bold"
-              style="font-family: 'Roboto', sans-serif; letter-spacing: 0.08em"
-              >VDI</span
-            >
-            <span
-              class="block text-2xl text-white font-bold"
-              style="font-family: 'Roboto', sans-serif; letter-spacing: 0.04em; line-height: 1"
-              >esan</span
-            >
-          </div>
-          <img src="/icons/logoEsan.png" alt="Logo ESAN" height="40" />
-        </div>
+  <q-layout view="hHh lpR fFf" class="main-layout">
+    <!-- Cabecera con el logo y botón de cerrar sesión -->
+    <q-header elevated class="header">
+      <q-toolbar>
+        <q-toolbar-title>
+          <img src="/icons/Logo_VDI.png" alt="Logo ESAN VDI" height="40" />
+          <span class="text-white">BIENVENIDO!</span>
+        </q-toolbar-title>
+        <q-btn flat label="Cerrar Sesión" color="white" @click="cerrarSesion" class="small-btn" />
       </q-toolbar>
     </q-header>
 
-    <!-- Left Drawer -->
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered class="bg-white font-sans">
-      <q-list>
-        <q-item-label header class="text-esan-primary font-bold">Menú</q-item-label>
-        <q-item clickable v-for="item in drawerItems" :key="item.label">
-          <q-item-section avatar>
-            <q-icon :name="item.icon" class="text-esan-primary" />
-          </q-item-section>
-          <q-item-section class="font-medium text-esan-primary">{{ item.label }}</q-item-section>
-        </q-item>
-      </q-list>
-    </q-drawer>
+    <!-- Carrusel de imágenes -->
+    <div class="carousel-container">
+      <q-img
+        :src="imageUrls[currentImage]"
+        class="carousel-image"
+        :alt="'Imagen ' + (currentImage + 1)"
+        :key="currentImage"
+      />
+      <div class="carousel-buttons">
+        <q-btn
+          icon="keyboard_arrow_left"
+          color="white"
+          round
+          @click="prevImage"
+          class="carousel-btn-left"
+        />
+        <q-btn
+          icon="keyboard_arrow_right"
+          color="white"
+          round
+          @click="nextImage"
+          class="carousel-btn-right"
+        />
+      </div>
+    </div>
 
-    <!-- Contenido principal -->
-    <q-page-container class="bg-[#F8F8F8] font-sans">
-      <router-view />
+    <!-- Botón para Crear y Listar Publicaciones -->
+    <q-page-container>
+      <q-page class="q-pa-md">
+        <div class="q-mt-md flex flex-center">
+          <q-btn
+            label="Crear y Listar Publicaciones"
+            color="secondary"
+            @click="irACrearListarPublicacion"
+            class="btn-ir-publicaciones"
+          />
+        </div>
+      </q-page>
     </q-page-container>
-
-    <!-- Botón flotante para chat IA -->
-    <q-fab icon="cloud" color="esan-primary" class="fab-chat" @click="goToChat" />
   </q-layout>
 </template>
 
-<script setup>
-import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { parseJwt } from '../boot/tokenRefresh'
-import RespJWT from '../models/RespJWT'
-
-const leftDrawerOpen = ref(false)
-const router = useRouter()
-
-const userName = ref('Nombre Apellido')
-const userImage = '/icons/favicon-128x128.png'
-
-onMounted(() => {
-  const user = RespJWT.fromLocalStorage()
-  if (user && user.nombre && user.apellido) {
-    userName.value = `${user.nombre} ${user.apellido}`
-  } else {
-    // Fallback: intentar extraer del JWT si no hay user en localStorage
-    const token = localStorage.getItem('jwt')
-    if (token) {
-      try {
-        const payload = parseJwt(token)
-        if (payload && payload.nombre && payload.apellido) {
-          userName.value = `${payload.nombre} ${payload.apellido}`
-        } else {
-          const jwtObj = JSON.parse(atob(token.split('.')[1]))
-          if (jwtObj.nombre && jwtObj.apellido) {
-            userName.value = `${jwtObj.nombre} ${jwtObj.apellido}`
-          }
-        }
-      } catch {
-        userName.value = 'Usuario'
-      }
+<script>
+export default {
+  name: 'MainLayout',
+  data() {
+    return {
+      imageUrls: ['/icons/Portada.png', '/icons/Registro.png'],
+      currentImage: 0,
     }
-  }
-})
-
-// Menú dinámico según rol (dummy, luego conectar con JWT/store)
-const drawerItems = [
-  { label: 'Inicio', icon: 'home' },
-  { label: 'Perfil', icon: 'person' },
-  // ...agregar más según el rol
-]
-
-function goToChat() {
-  router.push('/chat') // Ruta a componente de chat IA
-}
-
-function goToProfile() {
-  router.push('/perfil') // Ruta a componente de perfil
-}
-
-function logout() {
-  // Aquí se debe limpiar el token y cualquier info de sesión
-  localStorage.removeItem('jwt')
-  RespJWT.clearLocalStorage()
-  // Si usas Pinia/Vuex, limpia el store aquí
-  router.push('/login') // Redirige al login
+  },
+  methods: {
+    prevImage() {
+      this.currentImage = (this.currentImage - 1 + this.imageUrls.length) % this.imageUrls.length
+    },
+    nextImage() {
+      this.currentImage = (this.currentImage + 1) % this.imageUrls.length
+    },
+    cerrarSesion() {
+      localStorage.removeItem('jwt')
+      this.$router.push('/login')
+    },
+    irACrearListarPublicacion() {
+      console.log('Redirigiendo...')
+      this.$router.push('/crear-listar-publicacion')
+    },
+  },
 }
 </script>
 
 <style scoped>
-.fab-chat {
-  position: fixed;
-  right: 24px;
-  bottom: 24px;
-  z-index: 1000;
+.main-layout {
+  background-color: #000; /* fondo negro */
+  min-height: 100vh;
 }
 
-.q-header {
-  /* Sombra y color institucional */
-  box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
-  background-color: #b80000 !important;
+.header {
+  background-color: #1a1a1a;
+  color: white;
+  padding: 10px;
 }
 
-.q-toolbar {
-  font-family: 'Inter', sans-serif !important;
+.q-toolbar-title img {
+  margin-right: 10px;
 }
 
-.q-drawer {
-  font-family: 'Inter', sans-serif !important;
+.carousel-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  margin-top: 20px;
 }
 
-.q-item-label.header {
-  color: #b80000 !important;
-  font-family: 'Inter', sans-serif !important;
-  font-weight: 700 !important;
+.carousel-image {
+  width: 100%;
+  height: 671px;
+  object-fit: cover;
+  border-radius: 10px;
 }
 
-.q-item-section {
-  font-family: 'Inter', sans-serif !important;
-  color: #b80000 !important;
+.carousel-buttons {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  transform: translateY(-50%);
 }
 
-.q-page-container {
-  background-color: #f8f8f8 !important;
-  font-family: 'Inter', sans-serif !important;
+.carousel-btn-left {
+  position: absolute;
+  left: 10px;
+}
+
+.carousel-btn-right {
+  position: absolute;
+  right: 10px;
+}
+
+.btn-ir-publicaciones {
+  font-size: 18px;
+  padding: 10px 20px;
+  background-color: #b80000;
+  color: white;
 }
 </style>

@@ -7,16 +7,7 @@ import {
 } from 'vue-router'
 import routes from './routes'
 
-/*
- * If not building with SSR mode, you can
- * directly export the Router instantiation;
- *
- * The function below can be async too; either use
- * async/await or return a Promise which resolves
- * with the Router instance.
- */
-
-export default defineRouter(function (/* { store, ssrContext } */) {
+export default defineRouter(function () {
   const createHistory = process.env.SERVER
     ? createMemoryHistory
     : process.env.VUE_ROUTER_MODE === 'history'
@@ -26,27 +17,26 @@ export default defineRouter(function (/* { store, ssrContext } */) {
   const Router = createRouter({
     scrollBehavior: () => ({ left: 0, top: 0 }),
     routes,
-
-    // Leave this as is and make changes in quasar.conf.js instead!
-    // quasar.conf.js -> build -> vueRouterMode
-    // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.VUE_ROUTER_BASE),
   })
 
-  // Guard global para proteger rutas
+  // Guard global para proteger rutas privadas
   Router.beforeEach((to, from, next) => {
     const publicPages = ['/login', '/register', '/recuperar']
-    const authRequired = !publicPages.includes(to.path)
+    const isPublic = publicPages.includes(to.path)
     const token = localStorage.getItem('jwt')
 
-    if (authRequired && !token) {
+    // Redirigir a login si intenta acceder a ruta privada sin token
+    if (!isPublic && !token) {
       return next('/login')
     }
-    if ((to.path === '/login' || to.path === '/register' || to.path === '/recuperar') && token) {
-      // Si ya está logueado, no dejar volver al login
+
+    // Evitar que un usuario logueado acceda a login/register/recuperar
+    if (isPublic && token) {
       return next('/')
     }
-    next()
+
+    return next()
   })
 
   return Router
