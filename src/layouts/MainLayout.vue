@@ -1,5 +1,8 @@
 <template>
-  <q-layout view="hHh lpR fFf" class="main-layout">
+  <q-layout
+    :class="{ 'main-layout': mostrarCarrusel, 'default-layout': !mostrarCarrusel }"
+    view="hHh lpR fFf"
+  >
     <!-- Cabecera con el logo y botón de cerrar sesión -->
     <q-header elevated class="header">
       <q-toolbar>
@@ -11,8 +14,8 @@
       </q-toolbar>
     </q-header>
 
-    <!-- Carrusel de imágenes -->
-    <div class="carousel-container">
+    <!-- Carrusel de imágenes solo en la página principal -->
+    <div v-if="mostrarCarrusel" class="carousel-container">
       <q-img
         :src="imageUrls[currentImage]"
         class="carousel-image"
@@ -37,18 +40,9 @@
       </div>
     </div>
 
-    <!-- Botón para Crear y Listar Publicaciones -->
+    <!-- Aquí se mostrará el contenido de cada página hija -->
     <q-page-container>
-      <q-page class="q-pa-md">
-        <div class="q-mt-md flex flex-center">
-          <q-btn
-            label="Crear y Listar Publicaciones"
-            color="secondary"
-            @click="irACrearListarPublicacion"
-            class="btn-ir-publicaciones"
-          />
-        </div>
-      </q-page>
+      <router-view />
     </q-page-container>
   </q-layout>
 </template>
@@ -56,6 +50,12 @@
 <script>
 export default {
   name: 'MainLayout',
+  computed: {
+    mostrarCarrusel() {
+      // Solo mostrar el carrusel en la página principal (ruta exacta '/')
+      return this.$route.path === '/'
+    },
+  },
   data() {
     return {
       imageUrls: ['/icons/Portada.png', '/icons/Registro.png'],
@@ -83,7 +83,12 @@ export default {
 
 <style scoped>
 .main-layout {
-  background-color: #000; /* fondo negro */
+  background-color: #000; /* fondo negro solo en la principal */
+  min-height: 100vh;
+}
+
+.default-layout {
+  background-color: #fff; /* fondo blanco para otras páginas */
   min-height: 100vh;
 }
 

@@ -2,34 +2,26 @@
   <q-page class="q-pa-md">
     <h2>Gestión de Proyectos</h2>
 
-    <!-- Formulario para agregar/editar proyecto -->
-    <q-form @submit.prevent="onSubmit">
-      <div class="row q-col-gutter-md">
-        <div class="col-6">
-          <q-input filled v-model="form.Titulo" label="Título del Proyecto" required />
-        </div>
-      </div>
-      <div class="q-mt-md">
-        <q-btn color="primary" :label="editando ? 'Actualizar' : 'Agregar'" type="submit" />
-        <q-btn flat label="Cancelar" @click="resetForm" v-if="editando" />
-      </div>
-    </q-form>
-
-    <q-separator class="q-my-lg" />
-
     <!-- Tabla de proyectos -->
     <q-table title="Proyectos" :rows="proyectos" :columns="columns" row-key="ProyectoId" flat>
       <template v-slot:body-cell-acciones="props">
         <q-btn size="sm" color="primary" icon="edit" @click="editarProyecto(props.row)" />
-        <q-btn
-          size="sm"
-          color="negative"
-          icon="delete"
-          @click="eliminarProyecto(props.row.ProyectoId)"
-          class="q-ml-sm"
-        />
       </template>
     </q-table>
+
+    <!-- Modal para editar proyecto (solo FechaFin) -->
+    <q-dialog v-model="editando">
+      <q-card style="min-width: 400px">
+        <q-card-section>
+          <div class="text-h6">Editar Fecha de Fin</div>
+          <q-input v-model="form.FechaFin" label="Fecha de Fin" type="date" dense class="q-mb-sm" />
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="Cancelar" color="negative" @click="resetForm" />
+          <q-btn flat label="Guardar" color="primary" @click="onSubmit" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -43,11 +35,12 @@ defineOptions({ name: 'ProfesorProyectos' })
 const $q = useQuasar()
 const proyectos = ref([])
 const editando = ref(false)
-const form = ref({ ProyectoId: null, Titulo: '' })
+const form = ref({ ProyectoId: null, FechaFin: '' })
 
+// Solo mostrar columnas que existen en ProyectoListDTO
 const columns = [
-  { name: 'Titulo', label: 'Título', field: 'Titulo', align: 'left' },
-  { name: 'Estatus', label: 'Estatus', field: 'Estatus', align: 'left' },
+  { name: 'Titulo', label: 'Título', field: (row) => row.Titulo || row.titulo, align: 'left' },
+  { name: 'Estatus', label: 'Estatus', field: (row) => row.Estatus || row.estatus, align: 'left' },
   { name: 'acciones', label: 'Acciones', field: 'acciones', align: 'center' },
 ]
 
@@ -55,13 +48,27 @@ const API_URL = 'http://localhost:5192/api/proyectos' // Ajusta la URL según tu
 
 const cargarProyectos = async () => {
   try {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('jwt')
     const res = await axios.get(API_URL, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
-    proyectos.value = res.data
+    // Normalizar los nombres de campos a mayúscula inicial
+    let data = []
+    if (Array.isArray(res.data)) {
+      data = res.data
+    } else if (Array.isArray(res.data.proyectos)) {
+      data = res.data.proyectos
+    } else if (Array.isArray(res.data.data)) {
+      data = res.data.data
+    }
+    proyectos.value = data.map((p) => ({
+      ...p,
+      Titulo: p.Titulo || p.titulo,
+      Estatus: p.Estatus || p.estatus,
+      ProyectoId: p.ProyectoId || p.proyectoId,
+    }))
   } catch {
     $q.notify({ type: 'negative', message: 'Error al cargar proyectos' })
   }
@@ -69,51 +76,47 @@ const cargarProyectos = async () => {
 
 const onSubmit = async () => {
   try {
-    const token = localStorage.getItem('token')
-    if (editando.value) {
-      await axios.put(`${API_URL}/${form.value.ProyectoId}`, form.value, {
+    const token = localStorage.getItem('jwt')
+    await axios.put(
+      `${API_URL}/${form.value.ProyectoId}`,
+      {
+        FechaFin: form.value.FechaFin,
+      },
+      {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
-      $q.notify({ type: 'positive', message: 'Proyecto actualizado' })
-    } else {
-      await axios.post(API_URL, form.value, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      $q.notify({ type: 'positive', message: 'Proyecto agregado' })
-    }
+      },
+    )
+    $q.notify({ type: 'positive', message: 'Fecha de fin actualizada' })
     resetForm()
     cargarProyectos()
   } catch {
-    $q.notify({ type: 'negative', message: 'Error al guardar proyecto' })
+    $q.notify({ type: 'negative', message: 'Error al actualizar proyecto' })
   }
 }
 
-const editarProyecto = (proyecto) => {
-  form.value = { ProyectoId: proyecto.ProyectoId, Titulo: proyecto.Titulo, Descripcion: '' }
-  editando.value = true
-}
-
-const eliminarProyecto = async (id) => {
+const editarProyecto = async (proyecto) => {
   try {
-    const token = localStorage.getItem('token')
-    await axios.delete(`${API_URL}/${id}`, {
+    const token = localStorage.getItem('jwt')
+    // Obtener el proyecto completo por ID para traer FechaFin
+    const res = await axios.get(`${API_URL}/${proyecto.ProyectoId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
-    $q.notify({ type: 'positive', message: 'Proyecto eliminado' })
-    cargarProyectos()
+    form.value = {
+      ProyectoId: res.data.ProyectoId,
+      FechaFin: res.data.FechaFin ? res.data.FechaFin.slice(0, 10) : '',
+    }
+    editando.value = true
   } catch {
-    $q.notify({ type: 'negative', message: 'Error al eliminar proyecto' })
+    $q.notify({ type: 'negative', message: 'No se pudo cargar el proyecto para editar.' })
   }
 }
 
 const resetForm = () => {
-  form.value = { ProyectoId: null, Titulo: '', Descripcion: '' }
+  form.value = { ProyectoId: null, FechaFin: '' }
   editando.value = false
 }
 

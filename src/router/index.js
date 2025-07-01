@@ -33,6 +33,11 @@ export default defineRouter(function () {
 
     // Evitar que un usuario logueado acceda a login/register/recuperar
     if (isPublic && token) {
+      // Leer el rol del usuario del localStorage
+      const user = JSON.parse(localStorage.getItem('user') || '{}')
+      if (user.rol === 3) return next('/admin')
+      if (user.rol === 2) return next('/profesor')
+      if (user.rol === 1) return next('/alumno/dashboard')
       return next('/')
     }
 

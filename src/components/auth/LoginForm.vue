@@ -99,12 +99,21 @@ export default {
               }
               console.log('Usuario mapeado:', usuarioMapeado)
               RespJWT.saveToLocalStorage(usuarioMapeado)
+              // Redirección según el rol
+              if (usuarioMapeado.rol === 3) {
+                this.$router.push('/admin')
+              } else if (usuarioMapeado.rol === 2) {
+                this.$router.push('/profesor')
+              } else if (usuarioMapeado.rol === 1) {
+                this.$router.push('/alumno/dashboard')
+              } else {
+                this.$router.push('/')
+              }
             }
             this.$q.notify({
               type: 'positive',
               message: 'Inicio de sesión exitoso.',
             })
-            this.$router.push('/')
           } else {
             this.$q.notify({
               type: 'negative',
