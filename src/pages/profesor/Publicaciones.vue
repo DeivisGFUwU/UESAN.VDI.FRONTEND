@@ -64,12 +64,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useQuasar } from 'quasar'
 import axios from 'axios'
 
 defineOptions({ name: 'ProfesorPublicaciones' })
 
-const $q = useQuasar()
 const publicaciones = ref([])
 const errorMsg = ref('')
 const successMsg = ref('')

@@ -230,7 +230,7 @@ async function cargarProfesores() {
       ...p,
       nombreCompleto: `${p.nombre || ''} ${p.apellido || ''}`.trim() || `Profesor #${p.profesorId}`,
     }))
-  } catch (error) {
+  } catch {
     profesoresOptions.value = []
   }
 }

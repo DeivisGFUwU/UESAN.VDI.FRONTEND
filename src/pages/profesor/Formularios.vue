@@ -85,12 +85,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useQuasar } from 'quasar'
 import axios from 'axios'
 
 defineOptions({ name: 'ProfesorFormularios' })
 
-const $q = useQuasar()
 const formularios = ref([])
 const errorMsg = ref('')
 const successMsg = ref('')

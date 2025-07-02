@@ -271,7 +271,7 @@ async function cargarProyectos() {
       headers: { Authorization: `Bearer ${token}` },
     })
     proyectosOptions.value = response.data
-  } catch (error) {
+  } catch {
     proyectosOptions.value = []
   }
 }

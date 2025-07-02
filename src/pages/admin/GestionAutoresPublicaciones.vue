@@ -249,7 +249,7 @@ async function cargarPublicaciones() {
       ...p,
       titulo: p.titulo || `Publicación #${p.publicacionId}`,
     }))
-  } catch (error) {
+  } catch {
     publicacionesOptions.value = []
   }
 }
@@ -264,7 +264,7 @@ async function cargarProfesores() {
       ...p,
       nombreCompleto: `${p.nombre || ''} ${p.apellido || ''}`.trim() || `Profesor #${p.profesorId}`,
     }))
-  } catch (error) {
+  } catch {
     profesoresOptions.value = []
   }
 }

@@ -219,7 +219,7 @@ async function cargarProyectos() {
     })
     console.log('Proyectos desde API:', response.data)
     proyectosOptions.value = response.data
-  } catch (error) {
+  } catch {
     proyectosOptions.value = []
   }
 }
@@ -236,7 +236,7 @@ async function cargarProfesores() {
       ...p,
       nombreCompleto: `${p.nombre || ''} ${p.apellido || ''}`.trim() || `Profesor #${p.profesorId}`,
     }))
-  } catch (error) {
+  } catch {
     profesoresOptions.value = []
   }
 }

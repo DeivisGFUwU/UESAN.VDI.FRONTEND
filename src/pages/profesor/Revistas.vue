@@ -25,11 +25,11 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { useQuasar } from 'quasar'
 import axios from 'axios'
 import { useAuthStore } from 'src/stores/auth'
 
-const $q = useQuasar()
+defineOptions({ name: 'ProfesorRevistas' })
+
 const authStore = useAuthStore()
 const revistas = ref([])
 const cargando = ref(false)
@@ -66,8 +66,8 @@ async function cargarRevistas() {
           titulo: r.titulo || r.Titulo,
         }))
       : []
-  } catch (e) {
-    $q.notify({ type: 'negative', message: 'Error al cargar revistas' })
+  } catch {
+    // Error al cargar revistas
   } finally {
     cargando.value = false
   }

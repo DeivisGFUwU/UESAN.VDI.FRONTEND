@@ -17,12 +17,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useQuasar } from 'quasar'
 import axios from 'axios'
 
 defineOptions({ name: 'ProfesorLineas' })
 
-const $q = useQuasar()
 const lineas = ref([])
 const errorMsg = ref('')
 
