@@ -1,8 +1,8 @@
 // Eliminar token y usuario del localStorage al cerrar la pestaña o recargar
-window.addEventListener('unload', () => {
-  localStorage.removeItem('token')
-  localStorage.removeItem('user')
-})
+// window.addEventListener('unload', () => {
+//   localStorage.removeItem('token')
+//   localStorage.removeItem('user')
+// })
 import { defineRouter } from '#q-app/wrappers'
 import {
   createRouter,

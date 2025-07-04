@@ -85,7 +85,7 @@ export default {
         return
       }
 
-      const endpointURL = '/api/usuarios/registrar' // Ajusta la URL según tu backend
+      const endpointURL = '/usuarios/registrar' // Ajusta la URL según tu backend
       const user = {
         nombre: this.nombre,
         apellido: this.apellido,

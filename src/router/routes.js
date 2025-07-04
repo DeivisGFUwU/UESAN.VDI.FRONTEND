@@ -131,6 +131,31 @@ const routes = [
         name: 'PostulanteDashboard',
         component: () => import('pages/postulante/Postulante.vue'),
       },
+      {
+        path: 'buscar-proyectos',
+        name: 'BuscarProyectos',
+        component: () => import('pages/postulante/BuscarProyectos.vue'),
+      },
+      {
+        path: 'postular',
+        name: 'Postular',
+        component: () => import('pages/postulante/Postular.vue'),
+      },
+      {
+        path: 'publicaciones',
+        name: 'Publicaciones',
+        component: () => import('pages/postulante/Publicaciones.vue'),
+      },
+      {
+        path: 'revistas',
+        name: 'Revistas',
+        component: () => import('pages/postulante/Revistas.vue'),
+      },
+      {
+        path: 'perfil',
+        name: 'Perfil',
+        component: () => import('pages/postulante/Perfil.vue'),
+      },
       // Aquí puedes agregar más rutas hijas para postulante
     ],
   },
