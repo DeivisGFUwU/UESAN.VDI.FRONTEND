@@ -1,6 +1,16 @@
 <template>
   <q-page class="dashboard-page">
     <div class="dashboard-flex-row">
+      <div class="dashboard-sidebar-header">
+        <q-btn
+          flat
+          dense
+          icon="menu"
+          class="sidebar-toggle"
+          @click="collapsed = !collapsed"
+          :aria-label="collapsed ? 'Expandir menú' : 'Colapsar menú'"
+        />
+      </div>
       <SidebarNav :items="sidebarItems" :collapsed="collapsed" />
       <div
         class="dashboard-container"
@@ -8,14 +18,6 @@
       >
         <div class="dashboard-title-row">
           <div class="dashboard-title">Panel de Profesor</div>
-          <q-btn
-            flat
-            dense
-            icon="menu"
-            class="sidebar-toggle"
-            @click="collapsed = !collapsed"
-            :aria-label="collapsed ? 'Expandir menú' : 'Colapsar menú'"
-          />
         </div>
         <div class="dashboard-welcome q-mt-md">Bienvenido, profesor.</div>
         <DomainCarousel :items="carouselItems" />
@@ -122,6 +124,17 @@ const carouselItems = [
   display: flex;
   flex-direction: row;
   min-height: 100vh;
+}
+.dashboard-sidebar-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  z-index: 10;
+  background: transparent;
+  padding: 16px 32px 0 0;
 }
 .dashboard-container {
   width: 100%;

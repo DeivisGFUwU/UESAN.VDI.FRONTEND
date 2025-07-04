@@ -8,14 +8,25 @@
       >
         <div class="dashboard-title-row">
           <div class="dashboard-title">Panel de Administración</div>
-          <q-btn
-            flat
-            dense
-            icon="menu"
-            class="sidebar-toggle"
-            @click="collapsed = !collapsed"
-            :aria-label="collapsed ? 'Expandir menú' : 'Colapsar menú'"
-          />
+          <div style="display: flex; align-items: center; gap: 8px">
+            <q-btn
+              flat
+              dense
+              icon="logout"
+              color="negative"
+              label="Cerrar sesión"
+              @click="logout"
+              class="logout-btn"
+            />
+            <q-btn
+              flat
+              dense
+              icon="menu"
+              class="sidebar-toggle"
+              @click="collapsed = !collapsed"
+              :aria-label="collapsed ? 'Expandir menú' : 'Colapsar menú'"
+            />
+          </div>
         </div>
         <div class="dashboard-welcome q-mt-md">Bienvenido, {{ userName }}.</div>
         <div class="dashboard-metrics-row q-mb-lg q-mt-md row items-stretch q-col-gutter-md">
@@ -65,6 +76,7 @@ import userService from 'src/services/userService'
 import proyectoService from 'src/services/proyectoService'
 import publicacionService from 'src/services/publicacionService'
 import profesorService from 'src/services/profesorService'
+import { useRouter } from 'vue-router'
 
 const collapsed = ref(true)
 const authStore = useAuthStore()
@@ -105,6 +117,15 @@ async function fetchMetrics() {
   }
 }
 onMounted(fetchMetrics)
+
+const router = useRouter()
+
+function logout() {
+  localStorage.clear()
+  sessionStorage.clear()
+  if (authStore.logout) authStore.logout()
+  router.push('/')
+}
 
 const carouselItems = [
   {
@@ -256,5 +277,9 @@ const carouselItems = [
 }
 .sidebar-toggle {
   color: $esan-red;
+}
+.logout-btn {
+  color: $esan-red;
+  font-weight: 600;
 }
 </style>
