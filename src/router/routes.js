@@ -90,7 +90,36 @@ const routes = [
         name: 'ProfesorDashboard',
         component: () => import('pages/profesor/ProfesorDashboard.vue'),
       },
-      // Aquí puedes agregar más rutas hijas para profesor
+      {
+        path: 'GestionProyectos',
+        name: 'ProfesorGestionProyectos',
+        component: () => import('pages/profesor/GestionProyectos.vue'),
+      },
+      {
+        path: 'GestionPublicaciones',
+        name: 'ProfesorGestionPublicaciones',
+        component: () => import('pages/profesor/GestionPublicaciones.vue'),
+      },
+      {
+        path: 'GestionFormulariosInvestigacion',
+        name: 'ProfesorGestionFormulariosInvestigacion',
+        component: () => import('pages/profesor/GestionFormulariosInvestigacion.vue'),
+      },
+      {
+        path: 'GestionLineasInvestigacion',
+        name: 'ProfesorGestionLineasInvestigacion',
+        component: () => import('pages/profesor/GestionLineasInvestigacion.vue'),
+      },
+      {
+        path: 'GestionRevistas',
+        name: 'ProfesorGestionRevistas',
+        component: () => import('pages/profesor/GestionRevistas.vue'),
+      },
+      {
+        path: 'GestionAutoresPublicaciones',
+        name: 'ProfesorGestionAutoresPublicaciones',
+        component: () => import('pages/profesor/GestionAutoresPublicaciones.vue'),
+      },
     ],
   },
   {

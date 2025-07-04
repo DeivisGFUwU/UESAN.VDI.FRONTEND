@@ -1,182 +1,144 @@
 <template>
-  <q-layout class="main-layout" view="hHh lpR fFf">
-    <!-- SidebarNav removido del layout global -->
-    <MainHeader @logout="cerrarSesion" />
-    <DynamicMenu :class="{ 'menu-shifted': drawerOpen }" @logout="cerrarSesion" />
-    <chatBot />
+  <q-layout
+    :class="{ 'main-layout': mostrarCarrusel, 'default-layout': !mostrarCarrusel }"
+    view="hHh lpR fFf"
+  >
+    <!-- Cabecera con el logo y botón de cerrar sesión -->
+    <q-header elevated class="header">
+      <q-toolbar>
+        <q-toolbar-title>
+          <img src="/icons/Logo_VDI.png" alt="Logo ESAN VDI" height="40" />
+          <span class="text-white">BIENVENIDO!</span>
+        </q-toolbar-title>
+        <q-btn flat label="Cerrar Sesión" color="white" @click="cerrarSesion" class="small-btn" />
+      </q-toolbar>
+    </q-header>
+
+    <!-- Carrusel de imágenes solo en la página principal -->
+    <div v-if="mostrarCarrusel" class="carousel-container">
+      <q-img
+        :src="imageUrls[currentImage]"
+        class="carousel-image"
+        :alt="'Imagen ' + (currentImage + 1)"
+        :key="currentImage"
+      />
+      <div class="carousel-buttons">
+        <q-btn
+          icon="keyboard_arrow_left"
+          color="white"
+          round
+          @click="prevImage"
+          class="carousel-btn-left"
+        />
+        <q-btn
+          icon="keyboard_arrow_right"
+          color="white"
+          round
+          @click="nextImage"
+          class="carousel-btn-right"
+        />
+      </div>
+    </div>
+
     <!-- Aquí se mostrará el contenido de cada página hija -->
-    <q-page-container
-      :style="
-        sidebarItems
-          ? `margin-left: ${sidebarCollapsed ? 64 : 240}px; transition: margin 0.3s cubic-bezier(.4,0,.2,1);`
-          : 'transition: margin 0.3s cubic-bezier(.4,0,.2,1);'
-      "
-    >
+    <q-page-container>
       <router-view />
     </q-page-container>
   </q-layout>
 </template>
 
 <script>
-import MainHeader from 'components/common/MainHeader.vue'
-import DynamicMenu from 'components/common/DynamicMenu.vue'
-import chatBot from 'components/chatBot/chatBot.vue'
-import { ref, provide } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from 'src/stores/authStore'
-
 export default {
   name: 'MainLayout',
-  components: { MainHeader, DynamicMenu, chatBot },
+  computed: {
+    mostrarCarrusel() {
+      // Solo mostrar el carrusel en la página principal (ruta exacta '/')
+      return this.$route.path === '/'
+    },
+  },
   data() {
     return {
-      sidebarItems: null,
-      sidebarCollapsed: false,
+      imageUrls: ['/icons/Portada.png', '/icons/Registro.png'],
+      currentImage: 0,
     }
   },
-  created() {
-    // Detecta el dashboard y asigna los ítems correspondientes
-    const route = this.$route
-    if (route.path.startsWith('/admin')) {
-      this.sidebarItems = [
-        {
-          icon: 'work',
-          label: 'Gestión de Proyectos',
-          desc: 'Administra todos los proyectos de investigación.',
-          action: {
-            label: 'Ir',
-            onClick: () => (window.location.href = '/admin/Gestion-Proyectos'),
-          },
-        },
-        {
-          icon: 'assignment_ind',
-          label: 'Asignación de Proyectos',
-          desc: 'Asigna proyectos a profesores y equipos.',
-          action: {
-            label: 'Ir',
-            onClick: () => (window.location.href = '/admin/Asignacion-Proyectos'),
-          },
-        },
-        {
-          icon: 'school',
-          label: 'Gestión de Profesores',
-          desc: 'Gestiona los datos de los profesores.',
-          action: {
-            label: 'Ir',
-            onClick: () => (window.location.href = '/admin/Gestion-profesores'),
-          },
-        },
-        {
-          icon: 'manage_accounts',
-          label: 'Gestión de Usuarios',
-          desc: 'Administra usuarios del sistema.',
-          action: {
-            label: 'Ir',
-            onClick: () => (window.location.href = '/admin/Gestion-usuarios'),
-          },
-        },
-        {
-          icon: 'library_books',
-          label: 'Gestión de Publicaciones',
-          desc: 'Gestiona publicaciones científicas.',
-          action: {
-            label: 'Ir',
-            onClick: () => (window.location.href = '/admin/Gestion-publicaciones'),
-          },
-        },
-        {
-          icon: 'menu_book',
-          label: 'Gestión de Revistas',
-          desc: 'Administra revistas académicas.',
-          action: {
-            label: 'Ir',
-            onClick: () => (window.location.href = '/admin/gestion-revistas'),
-          },
-        },
-        {
-          icon: 'assignment',
-          label: 'Formularios de Investigación',
-          desc: 'Gestiona formularios de investigación.',
-          action: {
-            label: 'Ir',
-            onClick: () => (window.location.href = '/admin/Gestion-formularios-investigacion'),
-          },
-        },
-        {
-          icon: 'timeline',
-          label: 'Líneas de Investigación',
-          desc: 'Gestiona líneas de investigación.',
-          action: {
-            label: 'Ir',
-            onClick: () => (window.location.href = '/admin/Gestion-lineas-investigacion'),
-          },
-        },
-        {
-          icon: 'groups',
-          label: 'Autores de Publicaciones',
-          desc: 'Gestiona autores de publicaciones.',
-          action: {
-            label: 'Ir',
-            onClick: () => (window.location.href = '/admin/Gestion-autores-publicacion'),
-          },
-        },
-        {
-          icon: 'chat',
-          label: 'Chat Interno',
-          desc: 'Comunícate con otros administradores.',
-          action: { label: 'Ir', onClick: () => (window.location.href = '/admin/Chat-interno') },
-        },
-      ]
-    }
-    // Aquí puedes agregar lógica para profesor/postulante si lo deseas
-  },
-  setup() {
-    const drawerOpen = ref(false)
-    provide('drawerOpen', drawerOpen)
-    const router = useRouter()
-    const authStore = useAuthStore()
-    function cerrarSesion() {
-      try {
-        if (authStore && typeof authStore.clearAuth === 'function') {
-          authStore.clearAuth()
-        }
-      } catch (error) {
-        console.error('Error al cerrar sesión:', error)
-      }
-      localStorage.clear() // Limpia todo el localStorage por seguridad
-      // Redirige a la portada (PortadaLayout)
-      router.push('/')
-    }
-    return { drawerOpen, cerrarSesion }
+  methods: {
+    prevImage() {
+      this.currentImage = (this.currentImage - 1 + this.imageUrls.length) % this.imageUrls.length
+    },
+    nextImage() {
+      this.currentImage = (this.currentImage + 1) % this.imageUrls.length
+    },
+    cerrarSesion() {
+      localStorage.removeItem('jwt')
+      this.$router.push('/login')
+    },
+    irACrearListarPublicacion() {
+      console.log('Redirigiendo...')
+      this.$router.push('/crear-listar-publicacion')
+    },
   },
 }
 </script>
 
-<style lang="scss" scoped>
-@import 'src/css/esan.variables.scss';
+<style scoped>
+.main-layout {
+  background-color: #000; /* fondo negro solo en la principal */
+  min-height: 100vh;
+}
 
-.main-layout,
 .default-layout {
-  font-family: $esan-font-main;
-  background: $esan-light-grey;
-  color: $esan-black;
+  background-color: #fff; /* fondo blanco para otras páginas */
+  min-height: 100vh;
 }
-/* Desplazamiento del menú cuando el drawer está abierto */
-.menu-shifted {
-  transform: translateX(220px);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+.header {
+  background-color: #1a1a1a;
+  color: white;
+  padding: 10px;
 }
-/* Animación para desplazar el menú */
-.menu-slide-enter-active,
-.menu-slide-leave-active {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+.q-toolbar-title img {
+  margin-right: 10px;
 }
-.menu-slide-enter-from,
-.menu-slide-leave-to {
-  transform: translateX(0);
+
+.carousel-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  margin-top: 20px;
 }
-.menu-slide-enter-to,
-.menu-slide-leave-from {
-  transform: translateX(-240px);
+
+.carousel-image {
+  width: 100%;
+  height: 671px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.carousel-buttons {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  transform: translateY(-50%);
+}
+
+.carousel-btn-left {
+  position: absolute;
+  left: 10px;
+}
+
+.carousel-btn-right {
+  position: absolute;
+  right: 10px;
+}
+
+.btn-ir-publicaciones {
+  font-size: 18px;
+  padding: 10px 20px;
+  background-color: #b80000;
+  color: white;
 }
 </style>
