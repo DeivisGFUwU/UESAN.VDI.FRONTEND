@@ -1,29 +1,34 @@
 <template>
-  <q-page class="q-pa-md">
+  <q-page class="q-pa-md" style="position: relative">
     <div class="text-h5 q-mb-md">Gestión de Proyectos</div>
     <div class="row q-mb-md items-center">
-      <q-btn color="primary" label="Nuevo Proyecto" class="q-mr-md" @click="abrirModalCrear" />
-      <q-input
+      <BaseButton
+        color="primary"
+        label="Nuevo Proyecto"
+        customClass="q-mr-md"
+        @click="abrirModalCrear"
+      />
+      <BaseInput
         v-model="busquedaId"
         label="Buscar por ID"
         type="number"
         dense
-        class="q-mr-sm"
+        customClass="q-mr-sm"
         style="max-width: 150px"
       />
-      <q-btn color="secondary" label="Buscar" @click="onBuscarPorId" />
-      <q-input
+      <BaseButton color="secondary" label="Buscar" @click="onBuscarPorId" />
+      <BaseInput
         v-model="busquedaTitulo"
         label="Buscar por Título"
         dense
-        class="q-ml-md q-mr-sm"
+        customClass="q-ml-md q-mr-sm"
         style="max-width: 200px"
       />
-      <q-input
+      <BaseInput
         v-model="busquedaEstatus"
         label="Buscar por Estatus"
         dense
-        class="q-mr-sm"
+        customClass="q-mr-sm"
         style="max-width: 150px"
       />
       <q-space />
@@ -35,21 +40,21 @@
         style="max-width: 300px"
       />
     </div>
-    <q-table
+    <BaseTable
       :rows="proyectosFiltrados"
       :columns="columns"
-      row-key="proyectoId"
+      rowKey="proyectoId"
       flat
       bordered
       :pagination="{ rowsPerPage: 5 }"
     >
-      <template v-slot:body-cell-acciones="props">
+      <template #body-cell-acciones="props">
         <q-td align="center">
-          <q-btn size="sm" color="secondary" icon="edit" flat @click="onEdit(props.row)" />
-          <q-btn size="sm" color="negative" icon="delete" flat @click="onDelete(props.row)" />
+          <BaseButton size="sm" color="secondary" icon="edit" flat @click="onEdit(props.row)" />
+          <BaseButton size="sm" color="negative" icon="delete" flat @click="onDelete(props.row)" />
         </q-td>
       </template>
-    </q-table>
+    </BaseTable>
     <q-banner v-if="errorMsg" class="bg-red text-white q-mt-md">
       {{ errorMsg }}
     </q-banner>
@@ -72,28 +77,39 @@
       <q-card style="min-width: 400px">
         <q-card-section>
           <div class="text-h6">Crear Nuevo Proyecto</div>
-          <q-input v-model="nuevoProyecto.titulo" label="Título" dense class="q-mb-sm" />
-          <q-input v-model="nuevoProyecto.descripcion" label="Descripción" dense class="q-mb-sm" />
-          <q-input
+          <BaseInput v-model="nuevoProyecto.titulo" label="Título" dense customClass="q-mb-sm" />
+          <BaseInput
+            v-model="nuevoProyecto.descripcion"
+            label="Descripción"
+            dense
+            customClass="q-mb-sm"
+          />
+          <BaseInput
             v-model="nuevoProyecto.fechaInicio"
             label="Fecha de Inicio"
             type="date"
             dense
-            class="q-mb-sm"
+            customClass="q-mb-sm"
           />
-          <q-input v-model="nuevoProyecto.estatus" label="Estatus" dense class="q-mb-sm" readonly />
+          <BaseInput
+            v-model="nuevoProyecto.estatus"
+            label="Estatus"
+            dense
+            customClass="q-mb-sm"
+            readonly
+          />
           <q-toggle v-model="nuevoProyecto.recomendado" label="Recomendado" class="q-mb-sm" />
-          <q-input
+          <BaseInput
             v-model.number="nuevoProyecto.lineaId"
             label="Línea ID"
             type="number"
             dense
-            class="q-mb-sm"
+            customClass="q-mb-sm"
           />
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="negative" v-close-popup />
-          <q-btn flat label="Crear" color="primary" @click="crearProyecto" />
+          <BaseButton flat label="Cancelar" color="negative" v-close-popup />
+          <BaseButton flat label="Crear" color="primary" @click="crearProyecto" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -103,55 +119,71 @@
       <q-card style="min-width: 400px">
         <q-card-section>
           <div class="text-h6">Editar Proyecto</div>
-          <q-input v-model="proyectoEditando.titulo" label="Título" dense class="q-mb-sm" />
-          <q-input
+          <BaseInput v-model="proyectoEditando.titulo" label="Título" dense customClass="q-mb-sm" />
+          <BaseInput
             v-model="proyectoEditando.descripcion"
             label="Descripción"
             dense
-            class="q-mb-sm"
+            customClass="q-mb-sm"
           />
-          <q-input
+          <BaseInput
             v-model="proyectoEditando.fechaInicio"
             label="Fecha de Inicio"
             type="date"
             dense
-            class="q-mb-sm"
+            customClass="q-mb-sm"
           />
-          <q-input
+          <BaseInput
             v-model="proyectoEditando.fechaFin"
             label="Fecha de Fin"
             type="date"
             dense
-            class="q-mb-sm"
+            customClass="q-mb-sm"
           />
-          <q-select
+          <BaseSelect
             v-model="proyectoEditando.estatus"
             :options="['En curso', 'Completado']"
             label="Estatus"
             dense
-            class="q-mb-sm"
+            customClass="q-mb-sm"
           />
           <q-toggle v-model="proyectoEditando.recomendado" label="Recomendado" class="q-mb-sm" />
-          <q-input
+          <BaseInput
             v-model.number="proyectoEditando.lineaId"
             label="Línea ID"
             type="number"
             dense
-            class="q-mb-sm"
+            customClass="q-mb-sm"
           />
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="negative" v-close-popup />
-          <q-btn flat label="Guardar" color="primary" @click="guardarEdicion" />
+          <BaseButton flat label="Cancelar" color="negative" v-close-popup />
+          <BaseButton flat label="Guardar" color="primary" @click="guardarEdicion" />
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <BackButton class="back-btn-bottom" />
   </q-page>
 </template>
+
+<style scoped>
+.back-btn-bottom {
+  position: fixed;
+  left: 32px;
+  bottom: 32px;
+  z-index: 20;
+}
+</style>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { api } from 'src/boot/axios'
+import BaseInput from 'src/components/common/BaseInput.vue'
+import BaseSelect from 'src/components/common/BaseSelect.vue'
+import BaseButton from 'src/components/common/BaseButton.vue'
+import BaseTable from 'src/components/common/BaseTable.vue'
+import BackButton from 'src/components/common/BackButton.vue'
 
 const proyectos = ref([])
 const errorMsg = ref('')
@@ -203,7 +235,7 @@ async function onDelete(row) {
   successMsg.value = ''
   try {
     const token = localStorage.getItem('jwt')
-    await api.delete(`/api/proyectos/${row.proyectoId}`, {
+    await api.delete(`/proyectos/${row.proyectoId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -227,7 +259,7 @@ async function onBuscarPorId() {
   }
   try {
     const token = localStorage.getItem('jwt')
-    const response = await api.get(`/api/proyectos/${busquedaId.value}`, {
+    const response = await api.get(`/proyectos/${busquedaId.value}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -255,7 +287,7 @@ async function onArchivoExcel(files) {
   formData.append('file', file)
   try {
     const token = localStorage.getItem('jwt')
-    const response = await api.post('/api/proyectos/crear-masivo-excel', formData, {
+    const response = await api.post('/proyectos/crear-masivo-excel', formData, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'multipart/form-data',
@@ -276,7 +308,7 @@ async function onArchivoExcel(files) {
 async function cargarProyectos() {
   try {
     const token = localStorage.getItem('jwt')
-    const response = await api.get('/api/proyectos', {
+    const response = await api.get('/proyectos', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -324,7 +356,7 @@ async function crearProyecto() {
       Recomendado: nuevoProyecto.value.recomendado,
       LineaId: nuevoProyecto.value.lineaId,
     }
-    await api.post('/api/proyectos', body, {
+    await api.post('/proyectos', body, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -353,7 +385,7 @@ async function guardarEdicion() {
       Recomendado: proyectoEditando.value.recomendado,
       LineaId: proyectoEditando.value.lineaId,
     }
-    await api.put(`/api/proyectos/${proyectoEditando.value.proyectoId}`, body, {
+    await api.put(`/proyectos/${proyectoEditando.value.proyectoId}`, body, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

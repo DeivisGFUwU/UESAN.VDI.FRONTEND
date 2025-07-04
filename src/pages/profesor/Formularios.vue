@@ -2,22 +2,30 @@
   <q-page class="q-pa-md">
     <div class="text-h6 q-mb-md">Formularios de Investigación</div>
     <div class="q-mb-md">
-      <q-btn color="primary" label="Nuevo Formulario" @click="abrirModalCrear" />
+      <BaseButton color="primary" label="Nuevo Formulario" @click="abrirModalCrear" />
     </div>
-    <q-table
+    <BaseTable
       :rows="formularios"
       :columns="columns"
-      row-key="FormularioId"
+      rowKey="FormularioId"
       flat
       bordered
       :pagination="{ rowsPerPage: 10 }"
     >
-      <template v-slot:body-cell-acciones="props">
+      <template #body-cell-acciones="props">
         <q-td align="center">
-          <q-btn size="sm" color="secondary" icon="edit" flat @click="onEdit(props.row)" />
+          <BaseButton
+            v-if="canEdit(props.row)"
+            size="sm"
+            color="secondary"
+            icon="edit"
+            flat
+            @click="onEdit(props.row)"
+          />
+          <q-tooltip v-else>Solo el dueño puede editar</q-tooltip>
         </q-td>
       </template>
-    </q-table>
+    </BaseTable>
     <q-banner v-if="errorMsg" class="bg-red text-white q-mt-md">
       {{ errorMsg }}
     </q-banner>
@@ -30,48 +38,59 @@
       <q-card style="min-width: 500px">
         <q-card-section>
           <div class="text-h6">{{ editando ? 'Editar' : 'Nuevo' }} Formulario</div>
-          <q-input
+          <BaseInput
             v-model="form.ProyectoId"
             label="ID Proyecto"
             type="number"
             dense
-            class="q-mb-sm"
+            customClass="q-mb-sm"
           />
-          <q-input v-model="form.TipoFormulario" label="Tipo de Formulario" dense class="q-mb-sm" />
-          <q-input v-model="form.Resumen" label="Resumen" type="textarea" dense class="q-mb-sm" />
-          <q-input
+          <BaseInput
+            v-model="form.TipoFormulario"
+            label="Tipo de Formulario"
+            dense
+            customClass="q-mb-sm"
+          />
+          <BaseInput
+            v-model="form.Resumen"
+            label="Resumen"
+            type="textarea"
+            dense
+            customClass="q-mb-sm"
+          />
+          <BaseInput
             v-model="form.Objetivos"
             label="Objetivos"
             type="textarea"
             dense
-            class="q-mb-sm"
+            customClass="q-mb-sm"
           />
-          <q-input
+          <BaseInput
             v-model="form.MedioPublicacion"
             label="Medio de Publicación"
             dense
-            class="q-mb-sm"
+            customClass="q-mb-sm"
           />
-          <q-input v-model="form.Issn" label="ISSN" dense class="q-mb-sm" />
-          <q-input v-model="form.Doi" label="DOI" dense class="q-mb-sm" />
-          <q-input
+          <BaseInput v-model="form.Issn" label="ISSN" dense customClass="q-mb-sm" />
+          <BaseInput v-model="form.Doi" label="DOI" dense customClass="q-mb-sm" />
+          <BaseInput
             v-model.number="form.Presupuesto"
             label="Presupuesto"
             type="number"
             dense
-            class="q-mb-sm"
+            customClass="q-mb-sm"
           />
-          <q-input
+          <BaseInput
             v-model="form.Cronograma"
             label="Cronograma"
             type="textarea"
             dense
-            class="q-mb-sm"
+            customClass="q-mb-sm"
           />
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="negative" v-close-popup @click="resetForm" />
-          <q-btn
+          <BaseButton flat label="Cancelar" color="negative" v-close-popup @click="resetForm" />
+          <BaseButton
             flat
             :label="editando ? 'Guardar' : 'Crear'"
             color="primary"
@@ -86,8 +105,23 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import BaseInput from 'src/components/common/BaseInput.vue'
+import BaseButton from 'src/components/common/BaseButton.vue'
+import BaseTable from 'src/components/common/BaseTable.vue'
 
 defineOptions({ name: 'ProfesorFormularios' })
+
+// Obtener usuario actual del localStorage
+const currentUser = JSON.parse(localStorage.getItem('user') || '{}')
+const currentProfesorId =
+  currentUser.profesorId || currentUser.ProfesorId || currentUser.id || currentUser.Id
+
+function canEdit(row) {
+  // Permitir solo si el ProfesorId del formulario coincide con el usuario actual
+  return (
+    row.ProfesorId === currentProfesorId || row.profesorId === currentProfesorId // por si viene en minúscula
+  )
+}
 
 const formularios = ref([])
 const errorMsg = ref('')
@@ -118,7 +152,7 @@ const columns = [
   { name: 'acciones', label: 'Acciones', field: 'acciones', align: 'center' },
 ]
 
-const API_URL = 'http://localhost:5192/api/formulariosinvestigacion'
+const API_URL = '/formulariosinvestigacion'
 
 const cargarFormularios = async () => {
   try {

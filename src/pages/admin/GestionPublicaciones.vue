@@ -2,23 +2,28 @@
   <q-page class="q-pa-md">
     <div class="text-h5 q-mb-md">Gestión de Publicaciones</div>
     <div class="row q-mb-md items-center">
-      <q-btn color="primary" label="Nueva Publicación" class="q-mr-md" @click="abrirModalCrear" />
+      <BaseButton
+        color="primary"
+        label="Nueva Publicación"
+        customClass="q-mr-md"
+        @click="abrirModalCrear"
+      />
     </div>
-    <q-table
+    <BaseTable
       :rows="publicaciones"
       :columns="columns"
-      row-key="publicacionId"
+      rowKey="publicacionId"
       flat
       bordered
       :pagination="{ rowsPerPage: 10 }"
     >
-      <template v-slot:body-cell-acciones="props">
+      <template #body-cell-acciones="props">
         <q-td align="center">
-          <q-btn size="sm" color="secondary" icon="edit" flat @click="onEdit(props.row)" />
-          <q-btn size="sm" color="negative" icon="delete" flat @click="onDelete(props.row)" />
+          <BaseButton size="sm" color="secondary" icon="edit" flat @click="onEdit(props.row)" />
+          <BaseButton size="sm" color="negative" icon="delete" flat @click="onDelete(props.row)" />
         </q-td>
       </template>
-    </q-table>
+    </BaseTable>
     <q-banner v-if="errorMsg" class="bg-red text-white q-mt-md">
       {{ errorMsg }}
     </q-banner>
@@ -31,37 +36,35 @@
       <q-card style="min-width: 400px">
         <q-card-section>
           <div class="text-h6">{{ editando ? 'Editar' : 'Nueva' }} Publicación</div>
-          <q-select
+          <BaseSelect
             v-model="publicacionForm.profesorId"
             :options="profesoresOptions"
-            option-label="nombreCompleto"
-            option-value="profesorId"
             label="Profesor"
             dense
-            class="q-mb-sm"
-            emit-value
-            map-options
+            customClass="q-mb-sm"
+            optionLabel="nombreCompleto"
+            optionValue="profesorId"
           />
-          <q-input v-model="publicacionForm.issn" label="ISSN" dense class="q-mb-sm" />
-          <q-input v-model="publicacionForm.titulo" label="Título" dense class="q-mb-sm" />
-          <q-input
+          <BaseInput v-model="publicacionForm.issn" label="ISSN" dense customClass="q-mb-sm" />
+          <BaseInput v-model="publicacionForm.titulo" label="Título" dense customClass="q-mb-sm" />
+          <BaseInput
             v-model="publicacionForm.fechaPublicacion"
             label="Fecha de Publicación"
             dense
-            class="q-mb-sm"
+            customClass="q-mb-sm"
             type="date"
           />
-          <q-input
+          <BaseInput
             v-model.number="publicacionForm.puntaje"
             label="Puntaje"
             dense
-            class="q-mb-sm"
+            customClass="q-mb-sm"
             type="number"
           />
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="negative" v-close-popup />
-          <q-btn
+          <BaseButton flat label="Cancelar" color="negative" v-close-popup />
+          <BaseButton
             flat
             :label="editando ? 'Guardar' : 'Crear'"
             color="primary"
@@ -70,12 +73,27 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <BackButton class="back-btn-bottom" />
   </q-page>
 </template>
 
+<style scoped>
+.back-btn-bottom {
+  position: fixed;
+  left: 32px;
+  bottom: 32px;
+  z-index: 20;
+}
+</style>
+
 <script setup>
+import BackButton from 'src/components/common/BackButton.vue'
 import { ref, onMounted } from 'vue'
 import { api } from 'src/boot/axios'
+import BaseInput from 'src/components/common/BaseInput.vue'
+import BaseSelect from 'src/components/common/BaseSelect.vue'
+import BaseButton from 'src/components/common/BaseButton.vue'
+import BaseTable from 'src/components/common/BaseTable.vue'
 
 const publicaciones = ref([])
 const profesoresOptions = ref([])
@@ -140,7 +158,7 @@ async function onDelete(row) {
   successMsg.value = ''
   try {
     const token = localStorage.getItem('jwt')
-    await api.delete(`/api/Publicaciones/${row.publicacionId}`, {
+    await api.delete(`/Publicaciones/${row.publicacionId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     successMsg.value = 'Publicación eliminada correctamente.'
@@ -159,7 +177,7 @@ async function guardarPublicacion() {
     const token = localStorage.getItem('jwt')
     if (editando.value) {
       await api.put(
-        `/api/Publicaciones/${publicacionForm.value.publicacionId}`,
+        `/Publicaciones/${publicacionForm.value.publicacionId}`,
         {
           PublicacionId: publicacionForm.value.publicacionId,
           ProfesorId: publicacionForm.value.profesorId,
@@ -175,7 +193,7 @@ async function guardarPublicacion() {
       successMsg.value = 'Publicación actualizada correctamente.'
     } else {
       await api.post(
-        '/api/Publicaciones',
+        '/Publicaciones',
         {
           ProfesorId: publicacionForm.value.profesorId,
           Issn: publicacionForm.value.issn,
@@ -201,7 +219,7 @@ async function guardarPublicacion() {
 async function cargarPublicaciones() {
   try {
     const token = localStorage.getItem('jwt')
-    const response = await api.get('/api/Publicaciones', {
+    const response = await api.get('/Publicaciones', {
       headers: { Authorization: `Bearer ${token}` },
     })
     // Mapear para mostrar nombre de profesor
@@ -223,7 +241,7 @@ async function cargarPublicaciones() {
 async function cargarProfesores() {
   try {
     const token = localStorage.getItem('jwt')
-    const response = await api.get('/api/Profesores', {
+    const response = await api.get('/Profesores', {
       headers: { Authorization: `Bearer ${token}` },
     })
     profesoresOptions.value = response.data.map((p) => ({

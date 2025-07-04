@@ -2,23 +2,28 @@
   <q-page class="q-pa-md">
     <div class="text-h5 q-mb-md">Gestión de Líneas de Investigación</div>
     <div class="row q-mb-md items-center">
-      <q-btn color="primary" label="Nueva Línea" class="q-mr-md" @click="abrirModalCrear" />
+      <BaseButton
+        color="primary"
+        label="Nueva Línea"
+        customClass="q-mr-md"
+        @click="abrirModalCrear"
+      />
     </div>
-    <q-table
+    <BaseTable
       :rows="lineas"
       :columns="columns"
-      row-key="lineaId"
+      rowKey="lineaId"
       flat
       bordered
       :pagination="{ rowsPerPage: 10 }"
     >
-      <template v-slot:body-cell-acciones="props">
+      <template #body-cell-acciones="props">
         <q-td align="center">
-          <q-btn size="sm" color="secondary" icon="edit" flat @click="onEdit(props.row)" />
-          <q-btn size="sm" color="negative" icon="delete" flat @click="onDelete(props.row)" />
+          <BaseButton size="sm" color="secondary" icon="edit" flat @click="onEdit(props.row)" />
+          <BaseButton size="sm" color="negative" icon="delete" flat @click="onDelete(props.row)" />
         </q-td>
       </template>
-    </q-table>
+    </BaseTable>
     <q-banner v-if="errorMsg" class="bg-red text-white q-mt-md">
       {{ errorMsg }}
     </q-banner>
@@ -31,11 +36,16 @@
       <q-card style="min-width: 400px">
         <q-card-section>
           <div class="text-h6">{{ editando ? 'Editar' : 'Nueva' }} Línea</div>
-          <q-input v-model="lineaForm.nombre" label="Nombre de la Línea" dense class="q-mb-sm" />
+          <BaseInput
+            v-model="lineaForm.nombre"
+            label="Nombre de la Línea"
+            dense
+            customClass="q-mb-sm"
+          />
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="negative" v-close-popup />
-          <q-btn
+          <BaseButton flat label="Cancelar" color="negative" v-close-popup />
+          <BaseButton
             flat
             :label="editando ? 'Guardar' : 'Crear'"
             color="primary"
@@ -44,12 +54,26 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <BackButton class="back-btn-bottom" />
   </q-page>
 </template>
 
+<style scoped>
+.back-btn-bottom {
+  position: fixed;
+  left: 32px;
+  bottom: 32px;
+  z-index: 20;
+}
+</style>
+
 <script setup>
+import BackButton from 'src/components/common/BackButton.vue'
 import { ref, onMounted } from 'vue'
 import { api } from 'src/boot/axios'
+import BaseInput from 'src/components/common/BaseInput.vue'
+import BaseButton from 'src/components/common/BaseButton.vue'
+import BaseTable from 'src/components/common/BaseTable.vue'
 
 const lineas = ref([])
 const errorMsg = ref('')
@@ -91,7 +115,7 @@ async function onDelete(row) {
   successMsg.value = ''
   try {
     const token = localStorage.getItem('jwt')
-    await api.delete(`/api/LineasInvestigacion/${row.lineaId}`, {
+    await api.delete(`/LineasInvestigacion/${row.lineaId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     successMsg.value = 'Línea eliminada correctamente.'
@@ -109,7 +133,7 @@ async function guardarLinea() {
     const token = localStorage.getItem('jwt')
     if (editando.value) {
       await api.put(
-        '/api/LineasInvestigacion',
+        '/LineasInvestigacion',
         {
           LineaId: lineaForm.value.lineaId,
           Nombre: lineaForm.value.nombre,
@@ -121,7 +145,7 @@ async function guardarLinea() {
       successMsg.value = 'Línea actualizada correctamente.'
     } else {
       await api.post(
-        '/api/LineasInvestigacion',
+        '/LineasInvestigacion',
         {
           Nombre: lineaForm.value.nombre,
         },
@@ -142,7 +166,7 @@ async function guardarLinea() {
 async function cargarLineas() {
   try {
     const token = localStorage.getItem('jwt')
-    const response = await api.get('/api/LineasInvestigacion', {
+    const response = await api.get('/LineasInvestigacion', {
       headers: { Authorization: `Bearer ${token}` },
     })
     lineas.value = response.data

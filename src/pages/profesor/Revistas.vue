@@ -2,19 +2,18 @@
   <q-page class="q-pa-md">
     <div class="text-h6">Revistas</div>
     <div class="q-mb-md">Aquí podrás consultar las revistas disponibles.</div>
-    <q-input
-      filled
+    <BaseInput
       v-model="issnFiltro"
       label="Buscar por ISSN"
-      class="q-mb-md"
-      debounce="400"
+      dense
+      customClass="q-mb-md"
       clearable
       @update:model-value="filtrarRevistas"
     />
-    <q-table
+    <BaseTable
       :rows="revistasFiltradas"
       :columns="columns"
-      row-key="id"
+      rowKey="id"
       flat
       bordered
       :loading="cargando"
@@ -26,7 +25,9 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
-import { useAuthStore } from 'src/stores/auth'
+import { useAuthStore } from 'src/stores/authStore'
+import BaseInput from 'src/components/common/BaseInput.vue'
+import BaseTable from 'src/components/common/BaseTable.vue'
 
 defineOptions({ name: 'ProfesorRevistas' })
 
@@ -55,7 +56,7 @@ async function cargarRevistas() {
   cargando.value = true
   try {
     const token = authStore.token
-    const res = await axios.get('/api/revistas/activas', {
+    const res = await axios.get('/revistas/activas', {
       headers: { Authorization: `Bearer ${token}` },
     })
     // Normalización de campos según respuesta del backend

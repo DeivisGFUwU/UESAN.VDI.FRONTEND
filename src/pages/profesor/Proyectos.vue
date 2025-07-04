@@ -3,22 +3,28 @@
     <h2>Gestión de Proyectos</h2>
 
     <!-- Tabla de proyectos -->
-    <q-table title="Proyectos" :rows="proyectos" :columns="columns" row-key="ProyectoId" flat>
-      <template v-slot:body-cell-acciones="props">
-        <q-btn size="sm" color="primary" icon="edit" @click="editarProyecto(props.row)" />
+    <BaseTable title="Proyectos" :rows="proyectos" :columns="columns" rowKey="ProyectoId" flat>
+      <template #body-cell-acciones="props">
+        <BaseButton size="sm" color="primary" icon="edit" @click="editarProyecto(props.row)" />
       </template>
-    </q-table>
+    </BaseTable>
 
     <!-- Modal para editar proyecto (solo FechaFin) -->
     <q-dialog v-model="editando">
       <q-card style="min-width: 400px">
         <q-card-section>
           <div class="text-h6">Editar Fecha de Fin</div>
-          <q-input v-model="form.FechaFin" label="Fecha de Fin" type="date" dense class="q-mb-sm" />
+          <BaseInput
+            v-model="form.FechaFin"
+            label="Fecha de Fin"
+            type="date"
+            dense
+            customClass="q-mb-sm"
+          />
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="negative" @click="resetForm" />
-          <q-btn flat label="Guardar" color="primary" @click="onSubmit" />
+          <BaseButton flat label="Cancelar" color="negative" @click="resetForm" />
+          <BaseButton flat label="Guardar" color="primary" @click="onSubmit" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -29,6 +35,9 @@
 import { ref, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import axios from 'axios'
+import BaseInput from 'src/components/common/BaseInput.vue'
+import BaseButton from 'src/components/common/BaseButton.vue'
+import BaseTable from 'src/components/common/BaseTable.vue'
 
 defineOptions({ name: 'ProfesorProyectos' })
 
@@ -44,7 +53,7 @@ const columns = [
   { name: 'acciones', label: 'Acciones', field: 'acciones', align: 'center' },
 ]
 
-const API_URL = 'http://localhost:5192/api/proyectos' // Ajusta la URL según tu backend
+const API_URL = '/proyectos' // Ajusta la URL según tu backend
 
 const cargarProyectos = async () => {
   try {

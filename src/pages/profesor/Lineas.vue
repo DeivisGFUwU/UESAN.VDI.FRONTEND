@@ -1,10 +1,10 @@
 <template>
   <q-page class="q-pa-md">
     <div class="text-h6 q-mb-md">Líneas de Investigación</div>
-    <q-table
+    <BaseTable
       :rows="lineas"
       :columns="columns"
-      row-key="LineaId"
+      rowKey="LineaId"
       flat
       bordered
       :pagination="{ rowsPerPage: 10 }"
@@ -18,6 +18,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import BaseTable from 'src/components/common/BaseTable.vue'
 
 defineOptions({ name: 'ProfesorLineas' })
 
@@ -28,7 +29,7 @@ const columns = [
   { name: 'Nombre', label: 'Nombre', field: (row) => row.Nombre || row.nombre, align: 'left' },
 ]
 
-const API_URL = 'http://localhost:5192/api/lineasinvestigacion'
+const API_URL = '/lineasinvestigacion'
 
 const cargarLineas = async () => {
   try {

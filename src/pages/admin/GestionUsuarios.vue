@@ -2,23 +2,28 @@
   <q-page class="q-pa-md">
     <div class="text-h5 q-mb-md">Gestión de Usuarios</div>
     <div class="row q-mb-md items-center">
-      <q-btn color="primary" label="Nuevo Usuario" class="q-mr-md" @click="abrirModalCrear" />
+      <BaseButton
+        label="Nuevo Usuario"
+        color="primary"
+        customClass="q-mr-md"
+        @click="abrirModalCrear"
+      />
     </div>
-    <q-table
+    <BaseTable
       :rows="usuarios"
       :columns="columns"
-      row-key="usuarioId"
+      rowKey="usuarioId"
       flat
       bordered
       :pagination="{ rowsPerPage: 10 }"
     >
-      <template v-slot:body-cell-acciones="props">
+      <template #body-cell-acciones="props">
         <q-td align="center">
-          <q-btn size="sm" color="secondary" icon="edit" flat @click="onEdit(props.row)" />
-          <q-btn size="sm" color="negative" icon="delete" flat @click="onDelete(props.row)" />
+          <BaseButton size="sm" color="secondary" icon="edit" flat @click="onEdit(props.row)" />
+          <BaseButton size="sm" color="negative" icon="delete" flat @click="onDelete(props.row)" />
         </q-td>
       </template>
-    </q-table>
+    </BaseTable>
     <q-banner v-if="errorMsg" class="bg-red text-white q-mt-md">
       {{ errorMsg }}
     </q-banner>
@@ -31,32 +36,34 @@
       <q-card style="min-width: 400px">
         <q-card-section>
           <div class="text-h6">{{ editando ? 'Editar' : 'Nuevo' }} Usuario</div>
-          <q-input v-model="usuarioForm.nombre" label="Nombre" dense class="q-mb-sm" />
-          <q-input v-model="usuarioForm.apellido" label="Apellido" dense class="q-mb-sm" />
-          <q-input v-model="usuarioForm.correo" label="Correo" dense class="q-mb-sm" type="email" />
-          <q-select
+          <BaseInput v-model="usuarioForm.nombre" label="Nombre" dense customClass="q-mb-sm" />
+          <BaseInput v-model="usuarioForm.apellido" label="Apellido" dense customClass="q-mb-sm" />
+          <BaseInput
+            v-model="usuarioForm.correo"
+            label="Correo"
+            dense
+            customClass="q-mb-sm"
+            type="email"
+          />
+          <BaseSelect
             v-model="usuarioForm.roleId"
             :options="rolesOptions"
-            option-label="label"
-            option-value="value"
             label="Rol"
             dense
-            class="q-mb-sm"
-            emit-value
-            map-options
+            customClass="q-mb-sm"
           />
-          <q-input
+          <BaseInput
             v-if="!editando"
             v-model="usuarioForm.password"
             label="Contraseña"
             dense
-            class="q-mb-sm"
+            customClass="q-mb-sm"
             type="password"
           />
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="negative" v-close-popup />
-          <q-btn
+          <BaseButton flat label="Cancelar" color="negative" v-close-popup />
+          <BaseButton
             flat
             :label="editando ? 'Guardar' : 'Crear'"
             color="primary"
@@ -66,11 +73,25 @@
       </q-card>
     </q-dialog>
   </q-page>
+  <BackButton class="back-btn-bottom" />
+  <style scoped>
+    .back-btn-bottom {
+      position: fixed;
+      left: 32px;
+      bottom: 32px;
+      z-index: 20;
+    }
+  </style>
 </template>
 
 <script setup>
+import BackButton from 'src/components/common/BackButton.vue'
 import { ref, onMounted } from 'vue'
 import { api } from 'src/boot/axios'
+import BaseInput from 'src/components/common/BaseInput.vue'
+import BaseSelect from 'src/components/common/BaseSelect.vue'
+import BaseButton from 'src/components/common/BaseButton.vue'
+import BaseTable from 'src/components/common/BaseTable.vue'
 
 const usuarios = ref([])
 const errorMsg = ref('')
@@ -146,7 +167,7 @@ async function onDelete(row) {
   successMsg.value = ''
   try {
     const token = localStorage.getItem('jwt')
-    await api.delete(`/api/Usuarios/${row.usuarioId}`, {
+    await api.delete(`/Usuarios/${row.usuarioId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     successMsg.value = 'Usuario eliminado correctamente.'
@@ -164,7 +185,7 @@ async function guardarUsuario() {
     const token = localStorage.getItem('jwt')
     if (editando.value) {
       await api.put(
-        `/api/Usuarios/${usuarioForm.value.usuarioId}`,
+        `/Usuarios/${usuarioForm.value.usuarioId}`,
         {
           Nombre: usuarioForm.value.nombre,
           Apellido: usuarioForm.value.apellido,
@@ -178,7 +199,7 @@ async function guardarUsuario() {
       successMsg.value = 'Usuario actualizado correctamente.'
     } else {
       await api.post(
-        '/api/Usuarios',
+        '/Usuarios',
         {
           Nombre: usuarioForm.value.nombre,
           Apellido: usuarioForm.value.apellido,
@@ -203,7 +224,7 @@ async function guardarUsuario() {
 async function cargarUsuarios() {
   try {
     const token = localStorage.getItem('jwt')
-    const response = await api.get('/api/Usuarios', {
+    const response = await api.get('/Usuarios', {
       headers: { Authorization: `Bearer ${token}` },
     })
     usuarios.value = response.data
@@ -215,4 +236,5 @@ async function cargarUsuarios() {
 }
 
 onMounted(cargarUsuarios)
+// ...existing code...
 </script>

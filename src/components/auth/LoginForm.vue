@@ -45,7 +45,7 @@
         <!-- Enlace para registrarse -->
         <div class="q-mb-sm text-center">
           <router-link to="/register" class="text-esan-primary hover:underline text-lg">
-            ¿No tienes cuenta? Regístrate
+            ¿Quieres postular con nosotros? Regístrate
           </router-link>
         </div>
 
@@ -73,7 +73,7 @@ export default {
   },
   methods: {
     iniciarSesion() {
-      const endpointURL = '/api/usuarios/signIn' // Ajusta la URL según tu backend
+      const endpointURL = '/usuarios/signIn' // Ajusta la URL según tu backend
       const user = {
         Correo: this.Email,
         Password: this.Password,
@@ -85,7 +85,7 @@ export default {
           if (response.data && (response.data.success || response.status === 200)) {
             // Guardar el JWT en localStorage
             if (response.data.jwt) {
-              localStorage.setItem('jwt', response.data.jwt)
+              localStorage.setItem('token', response.data.jwt)
             }
             // Guardar datos de usuario en localStorage (JSON raíz)
             if (response.data) {
@@ -95,9 +95,10 @@ export default {
                 nombre: raw.nombre,
                 apellido: raw.apellido,
                 email: raw.correo,
-                rol: raw.roleId,
+                rol: raw.roleId, // clave en minúsculas
               }
               console.log('Usuario mapeado:', usuarioMapeado)
+              localStorage.setItem('user', JSON.stringify(usuarioMapeado))
               RespJWT.saveToLocalStorage(usuarioMapeado)
               // Redirección según el rol
               if (usuarioMapeado.rol === 3) {
@@ -105,7 +106,7 @@ export default {
               } else if (usuarioMapeado.rol === 2) {
                 this.$router.push('/profesor')
               } else if (usuarioMapeado.rol === 1) {
-                this.$router.push('/alumno/dashboard')
+                this.$router.push('/postulante')
               } else {
                 this.$router.push('/')
               }

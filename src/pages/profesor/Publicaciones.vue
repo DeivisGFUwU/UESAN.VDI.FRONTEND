@@ -2,23 +2,38 @@
   <q-page class="q-pa-md">
     <div class="text-h6 q-mb-md">Gestión de Publicaciones</div>
     <div class="q-mb-md">
-      <q-btn color="primary" label="Nueva Publicación" @click="abrirModalCrear" />
+      <BaseButton color="primary" label="Nueva Publicación" @click="abrirModalCrear" />
     </div>
-    <q-table
+    <BaseTable
       :rows="publicaciones"
       :columns="columns"
-      row-key="PublicacionId"
+      rowKey="PublicacionId"
       flat
       bordered
       :pagination="{ rowsPerPage: 10 }"
     >
-      <template v-slot:body-cell-acciones="props">
+      <template #body-cell-acciones="props">
         <q-td align="center">
-          <q-btn size="sm" color="secondary" icon="edit" flat @click="onEdit(props.row)" />
-          <q-btn size="sm" color="negative" icon="delete" flat @click="onDelete(props.row)" />
+          <BaseButton
+            v-if="canEditOrDelete(props.row)"
+            size="sm"
+            color="secondary"
+            icon="edit"
+            flat
+            @click="onEdit(props.row)"
+          />
+          <BaseButton
+            v-if="canEditOrDelete(props.row)"
+            size="sm"
+            color="negative"
+            icon="delete"
+            flat
+            @click="onDelete(props.row)"
+          />
+          <q-tooltip v-else>Solo el dueño puede editar o eliminar</q-tooltip>
         </q-td>
       </template>
-    </q-table>
+    </BaseTable>
     <q-banner v-if="errorMsg" class="bg-red text-white q-mt-md">
       {{ errorMsg }}
     </q-banner>
@@ -31,26 +46,26 @@
       <q-card style="min-width: 400px">
         <q-card-section>
           <div class="text-h6">{{ editando ? 'Editar' : 'Nueva' }} Publicación</div>
-          <q-input v-model="publicacionForm.Issn" label="ISSN" dense class="q-mb-sm" />
-          <q-input v-model="publicacionForm.Titulo" label="Título" dense class="q-mb-sm" />
-          <q-input
+          <BaseInput v-model="publicacionForm.Issn" label="ISSN" dense customClass="q-mb-sm" />
+          <BaseInput v-model="publicacionForm.Titulo" label="Título" dense customClass="q-mb-sm" />
+          <BaseInput
             v-model="publicacionForm.FechaPublicacion"
             label="Fecha de Publicación"
             type="date"
             dense
-            class="q-mb-sm"
+            customClass="q-mb-sm"
           />
-          <q-input
+          <BaseInput
             v-model.number="publicacionForm.Puntaje"
             label="Puntaje"
             type="number"
             dense
-            class="q-mb-sm"
+            customClass="q-mb-sm"
           />
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="negative" v-close-popup />
-          <q-btn
+          <BaseButton flat label="Cancelar" color="negative" v-close-popup />
+          <BaseButton
             flat
             :label="editando ? 'Guardar' : 'Crear'"
             color="primary"
@@ -65,8 +80,23 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import BaseInput from 'src/components/common/BaseInput.vue'
+import BaseButton from 'src/components/common/BaseButton.vue'
+import BaseTable from 'src/components/common/BaseTable.vue'
 
 defineOptions({ name: 'ProfesorPublicaciones' })
+
+// Obtener usuario actual del localStorage
+const currentUser = JSON.parse(localStorage.getItem('user') || '{}')
+const currentProfesorId =
+  currentUser.profesorId || currentUser.ProfesorId || currentUser.id || currentUser.Id
+
+function canEditOrDelete(row) {
+  // Permitir solo si el ProfesorId de la publicación coincide con el usuario actual
+  return (
+    row.ProfesorId === currentProfesorId || row.profesorId === currentProfesorId // por si viene en minúscula
+  )
+}
 
 const publicaciones = ref([])
 const errorMsg = ref('')
@@ -94,7 +124,7 @@ const columns = [
   { name: 'acciones', label: 'Acciones', field: 'acciones', align: 'center' },
 ]
 
-const API_URL = 'http://localhost:5192/api/publicaciones'
+const API_URL = '/publicaciones'
 
 const cargarPublicaciones = async () => {
   try {

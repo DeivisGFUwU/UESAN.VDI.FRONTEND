@@ -2,23 +2,28 @@
   <q-page class="q-pa-md">
     <div class="text-h5 q-mb-md">Gestión de Formularios de Investigación</div>
     <div class="row q-mb-md items-center">
-      <q-btn color="primary" label="Nuevo Formulario" class="q-mr-md" @click="abrirModalCrear" />
+      <BaseButton
+        color="primary"
+        label="Nuevo Formulario"
+        customClass="q-mr-md"
+        @click="abrirModalCrear"
+      />
     </div>
-    <q-table
+    <BaseTable
       :rows="formularios"
       :columns="columns"
-      row-key="formularioId"
+      rowKey="formularioId"
       flat
       bordered
       :pagination="{ rowsPerPage: 10 }"
     >
-      <template v-slot:body-cell-acciones="props">
+      <template #body-cell-acciones="props">
         <q-td align="center">
-          <q-btn size="sm" color="secondary" icon="edit" flat @click="onEdit(props.row)" />
-          <q-btn size="sm" color="negative" icon="delete" flat @click="onDelete(props.row)" />
+          <BaseButton size="sm" color="secondary" icon="edit" flat @click="onEdit(props.row)" />
+          <BaseButton size="sm" color="negative" icon="delete" flat @click="onDelete(props.row)" />
         </q-td>
       </template>
-    </q-table>
+    </BaseTable>
     <q-banner v-if="errorMsg" class="bg-red text-white q-mt-md">
       {{ errorMsg }}
     </q-banner>
@@ -31,53 +36,51 @@
       <q-card style="min-width: 500px">
         <q-card-section>
           <div class="text-h6">{{ editando ? 'Editar' : 'Nuevo' }} Formulario</div>
-          <q-select
+          <BaseSelect
             v-model="formularioForm.proyectoId"
             :options="proyectosOptions"
+            label="Proyecto"
             option-label="titulo"
             option-value="proyectoId"
-            label="Proyecto"
             dense
             class="q-mb-sm"
-            emit-value
-            map-options
           />
-          <q-input
+          <BaseInput
             v-model="formularioForm.tipoFormulario"
             label="Tipo de Formulario"
             dense
             class="q-mb-sm"
           />
-          <q-input
+          <BaseInput
             v-model="formularioForm.resumen"
             label="Resumen"
             dense
             class="q-mb-sm"
             type="textarea"
           />
-          <q-input
+          <BaseInput
             v-model="formularioForm.objetivos"
             label="Objetivos"
             dense
             class="q-mb-sm"
             type="textarea"
           />
-          <q-input
+          <BaseInput
             v-model="formularioForm.medioPublicacion"
             label="Medio de Publicación"
             dense
             class="q-mb-sm"
           />
-          <q-input v-model="formularioForm.issn" label="ISSN" dense class="q-mb-sm" />
-          <q-input v-model="formularioForm.doi" label="DOI" dense class="q-mb-sm" />
-          <q-input
+          <BaseInput v-model="formularioForm.issn" label="ISSN" dense class="q-mb-sm" />
+          <BaseInput v-model="formularioForm.doi" label="DOI" dense class="q-mb-sm" />
+          <BaseInput
             v-model.number="formularioForm.presupuesto"
             label="Presupuesto"
             dense
             class="q-mb-sm"
             type="number"
           />
-          <q-input
+          <BaseInput
             v-model="formularioForm.cronograma"
             label="Cronograma"
             dense
@@ -86,8 +89,8 @@
           />
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="negative" v-close-popup />
-          <q-btn
+          <BaseButton flat label="Cancelar" color="negative" v-close-popup />
+          <BaseButton
             flat
             :label="editando ? 'Guardar' : 'Crear'"
             color="primary"
@@ -96,12 +99,27 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <BackButton class="back-btn-bottom" :to="'/admin/Gestion-formularios-investigacion'" />
   </q-page>
 </template>
 
+<style scoped>
+.back-btn-bottom {
+  position: fixed;
+  left: 32px;
+  bottom: 32px;
+  z-index: 20;
+}
+</style>
+
 <script setup>
+import BackButton from 'src/components/common/BackButton.vue'
 import { ref, onMounted } from 'vue'
 import { api } from 'src/boot/axios'
+import BaseInput from 'src/components/common/BaseInput.vue'
+import BaseButton from 'src/components/common/BaseButton.vue'
+import BaseTable from 'src/components/common/BaseTable.vue'
+import BaseSelect from 'src/components/common/BaseSelect.vue'
 
 const formularios = ref([])
 const proyectosOptions = ref([])
@@ -176,7 +194,7 @@ async function onDelete(row) {
   successMsg.value = ''
   try {
     const token = localStorage.getItem('jwt')
-    await api.delete(`/api/FormulariosInvestigacion/${row.formularioId}`, {
+    await api.delete(`/FormulariosInvestigacion/${row.formularioId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     successMsg.value = 'Formulario eliminado correctamente.'
@@ -195,7 +213,7 @@ async function guardarFormulario() {
     const token = localStorage.getItem('jwt')
     if (editando.value) {
       await api.put(
-        `/api/FormulariosInvestigacion/${formularioForm.value.formularioId}`,
+        `/FormulariosInvestigacion/${formularioForm.value.formularioId}`,
         {
           FormularioId: formularioForm.value.formularioId,
           ProyectoId: formularioForm.value.proyectoId,
@@ -215,7 +233,7 @@ async function guardarFormulario() {
       successMsg.value = 'Formulario actualizado correctamente.'
     } else {
       await api.post(
-        '/api/FormulariosInvestigacion',
+        '/FormulariosInvestigacion',
         {
           ProyectoId: formularioForm.value.proyectoId,
           TipoFormulario: formularioForm.value.tipoFormulario,
@@ -245,7 +263,7 @@ async function guardarFormulario() {
 async function cargarFormularios() {
   try {
     const token = localStorage.getItem('jwt')
-    const response = await api.get('/api/FormulariosInvestigacion', {
+    const response = await api.get('/FormulariosInvestigacion', {
       headers: { Authorization: `Bearer ${token}` },
     })
     // Mapear para mostrar nombre de proyecto
@@ -267,7 +285,7 @@ async function cargarFormularios() {
 async function cargarProyectos() {
   try {
     const token = localStorage.getItem('jwt')
-    const response = await api.get('/api/Proyectos', {
+    const response = await api.get('/Proyectos', {
       headers: { Authorization: `Bearer ${token}` },
     })
     proyectosOptions.value = response.data

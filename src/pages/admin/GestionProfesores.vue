@@ -2,23 +2,28 @@
   <q-page class="q-pa-md">
     <div class="text-h5 q-mb-md">Gestión de Profesores</div>
     <div class="row q-mb-md items-center">
-      <q-btn color="primary" label="Nuevo Profesor" class="q-mr-md" @click="abrirModalCrear" />
+      <BaseButton
+        color="primary"
+        label="Nuevo Profesor"
+        customClass="q-mr-md"
+        @click="abrirModalCrear"
+      />
     </div>
-    <q-table
+    <BaseTable
       :rows="profesores"
       :columns="columns"
-      row-key="profesorId"
+      rowKey="profesorId"
       flat
       bordered
       :pagination="{ rowsPerPage: 5 }"
     >
-      <template v-slot:body-cell-acciones="props">
+      <template #body-cell-acciones="props">
         <q-td align="center">
-          <q-btn size="sm" color="secondary" icon="edit" flat @click="onEdit(props.row)" />
-          <q-btn size="sm" color="negative" icon="delete" flat @click="onDelete(props.row)" />
+          <BaseButton size="sm" color="secondary" icon="edit" flat @click="onEdit(props.row)" />
+          <BaseButton size="sm" color="negative" icon="delete" flat @click="onDelete(props.row)" />
         </q-td>
       </template>
-    </q-table>
+    </BaseTable>
     <q-banner v-if="errorMsg" class="bg-red text-white q-mt-md">
       {{ errorMsg }}
     </q-banner>
@@ -31,23 +36,33 @@
       <q-card style="min-width: 400px">
         <q-card-section>
           <div class="text-h6">{{ editando ? 'Editar' : 'Nuevo' }} Profesor</div>
-          <q-input v-model="profesorForm.nombre" label="Nombre" dense class="q-mb-sm" />
-          <q-input v-model="profesorForm.apellido" label="Apellido" dense class="q-mb-sm" />
-          <q-input v-model="profesorForm.correo" label="Correo" dense class="q-mb-sm" />
-          <q-input v-model="profesorForm.departamento" label="Departamento" dense class="q-mb-sm" />
-          <q-input v-model="profesorForm.categoria" label="Categoría" dense class="q-mb-sm" />
-          <q-input
+          <BaseInput v-model="profesorForm.nombre" label="Nombre" dense customClass="q-mb-sm" />
+          <BaseInput v-model="profesorForm.apellido" label="Apellido" dense customClass="q-mb-sm" />
+          <BaseInput v-model="profesorForm.correo" label="Correo" dense customClass="q-mb-sm" />
+          <BaseInput
+            v-model="profesorForm.departamento"
+            label="Departamento"
+            dense
+            customClass="q-mb-sm"
+          />
+          <BaseInput
+            v-model="profesorForm.categoria"
+            label="Categoría"
+            dense
+            customClass="q-mb-sm"
+          />
+          <BaseInput
             v-if="!editando"
             v-model="profesorForm.password"
             label="Contraseña"
             type="password"
             dense
-            class="q-mb-sm"
+            customClass="q-mb-sm"
           />
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="negative" v-close-popup />
-          <q-btn
+          <BaseButton flat label="Cancelar" color="negative" v-close-popup />
+          <BaseButton
             flat
             :label="editando ? 'Guardar' : 'Crear'"
             color="primary"
@@ -56,12 +71,26 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <BackButton class="back-btn-bottom" />
   </q-page>
 </template>
 
+<style scoped>
+.back-btn-bottom {
+  position: fixed;
+  left: 32px;
+  bottom: 32px;
+  z-index: 20;
+}
+</style>
+
 <script setup>
+import BackButton from 'src/components/common/BackButton.vue'
 import { ref, onMounted } from 'vue'
 import { api } from 'src/boot/axios'
+import BaseInput from 'src/components/common/BaseInput.vue'
+import BaseButton from 'src/components/common/BaseButton.vue'
+import BaseTable from 'src/components/common/BaseTable.vue'
 
 const profesores = ref([])
 const errorMsg = ref('')
@@ -114,7 +143,7 @@ async function onDelete(row) {
   successMsg.value = ''
   try {
     const token = localStorage.getItem('jwt')
-    await api.delete(`/api/Profesores/${row.profesorId}`, {
+    await api.delete(`/Profesores/${row.profesorId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     successMsg.value = 'Profesor eliminado correctamente.'
@@ -133,7 +162,7 @@ async function guardarProfesor() {
     const token = localStorage.getItem('jwt')
     if (editando.value) {
       await api.put(
-        `/api/Profesores/${profesorForm.value.profesorId}`,
+        `/Profesores/${profesorForm.value.profesorId}`,
         {
           ProfesorId: profesorForm.value.profesorId,
           Departamento: profesorForm.value.departamento,
@@ -147,7 +176,7 @@ async function guardarProfesor() {
     } else {
       // Crear usuario y profesor juntos
       await api.post(
-        '/api/Profesores',
+        '/Profesores',
         {
           Nombre: profesorForm.value.nombre,
           Apellido: profesorForm.value.apellido,
@@ -174,10 +203,26 @@ async function guardarProfesor() {
 async function cargarProfesores() {
   try {
     const token = localStorage.getItem('jwt')
-    const response = await api.get('/api/Profesores', {
+    // 1. Obtener profesores
+    const response = await api.get('/Profesores', {
       headers: { Authorization: `Bearer ${token}` },
     })
-    profesores.value = response.data
+    const profesoresRaw = response.data
+    // 2. Obtener usuarios
+    const usuariosResp = await api.get('/usuarios', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    const usuarios = Array.isArray(usuariosResp.data) ? usuariosResp.data : []
+    // 3. Relacionar por usuarioId
+    profesores.value = profesoresRaw.map((prof) => {
+      const usuario = usuarios.find((u) => u.usuarioId === prof.usuarioId)
+      return {
+        ...prof,
+        nombre: usuario?.nombre || '',
+        apellido: usuario?.apellido || '',
+        correo: usuario?.correo || '',
+      }
+    })
   } catch (error) {
     errorMsg.value =
       error?.response?.data?.message || error.message || 'Error al obtener profesores.'

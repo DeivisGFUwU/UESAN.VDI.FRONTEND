@@ -2,26 +2,31 @@
   <q-page class="q-pa-md">
     <div class="text-h5 q-mb-md">Gestión de Revistas</div>
     <div class="row q-mb-md items-center">
-      <q-btn color="primary" label="Nueva Revista" class="q-mr-md" @click="abrirModalCrear" />
+      <BaseButton
+        color="primary"
+        label="Nueva Revista"
+        customClass="q-mr-md"
+        @click="abrirModalCrear"
+      />
     </div>
-    <q-table
+    <BaseTable
       :rows="revistas"
       :columns="columns"
-      row-key="issn"
+      rowKey="issn"
       flat
       bordered
       :pagination="{ rowsPerPage: 10 }"
     >
-      <template v-slot:body-cell-activa="props">
+      <template #body-cell-activa="props">
         <q-td align="center">{{ props.row.activa ? 'Sí' : 'No' }}</q-td>
       </template>
-      <template v-slot:body-cell-acciones="props">
+      <template #body-cell-acciones="props">
         <q-td align="center">
-          <q-btn size="sm" color="secondary" icon="edit" flat @click="onEdit(props.row)" />
-          <q-btn size="sm" color="negative" icon="delete" flat @click="onDelete(props.row)" />
+          <BaseButton size="sm" color="secondary" icon="edit" flat @click="onEdit(props.row)" />
+          <BaseButton size="sm" color="negative" icon="delete" flat @click="onDelete(props.row)" />
         </q-td>
       </template>
-    </q-table>
+    </BaseTable>
     <q-banner v-if="errorMsg" class="bg-red text-white q-mt-md">
       {{ errorMsg }}
     </q-banner>
@@ -34,22 +39,27 @@
       <q-card style="min-width: 400px">
         <q-card-section>
           <div class="text-h6">{{ editando ? 'Editar' : 'Nueva' }} Revista</div>
-          <q-input
+          <BaseInput
             v-model="revistaForm.issn"
             label="ISSN"
             dense
-            class="q-mb-sm"
+            customClass="q-mb-sm"
             :readonly="editando"
           />
-          <q-input v-model="revistaForm.titulo" label="Título" dense class="q-mb-sm" />
-          <q-input v-model="revistaForm.categoria" label="Categoría" dense class="q-mb-sm" />
-          <q-input v-model="revistaForm.cuartil" label="Cuartil" dense class="q-mb-sm" />
-          <q-input v-model="revistaForm.pais" label="País" dense class="q-mb-sm" />
+          <BaseInput v-model="revistaForm.titulo" label="Título" dense customClass="q-mb-sm" />
+          <BaseInput
+            v-model="revistaForm.categoria"
+            label="Categoría"
+            dense
+            customClass="q-mb-sm"
+          />
+          <BaseInput v-model="revistaForm.cuartil" label="Cuartil" dense customClass="q-mb-sm" />
+          <BaseInput v-model="revistaForm.pais" label="País" dense customClass="q-mb-sm" />
           <q-toggle v-model="revistaForm.activa" label="Activa" class="q-mb-sm" />
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="negative" v-close-popup />
-          <q-btn
+          <BaseButton flat label="Cancelar" color="negative" v-close-popup />
+          <BaseButton
             flat
             :label="editando ? 'Guardar' : 'Crear'"
             color="primary"
@@ -58,12 +68,26 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <BackButton class="back-btn-bottom" />
   </q-page>
 </template>
 
+<style scoped>
+.back-btn-bottom {
+  position: fixed;
+  left: 32px;
+  bottom: 32px;
+  z-index: 20;
+}
+</style>
+
 <script setup>
+import BackButton from 'src/components/common/BackButton.vue'
 import { ref, onMounted } from 'vue'
 import { api } from 'src/boot/axios'
+import BaseInput from 'src/components/common/BaseInput.vue'
+import BaseButton from 'src/components/common/BaseButton.vue'
+import BaseTable from 'src/components/common/BaseTable.vue'
 
 const revistas = ref([])
 const errorMsg = ref('')
@@ -78,6 +102,26 @@ const revistaForm = ref({
   activa: true,
   pais: '',
 })
+
+// Lista de ISSN a consultar individualmente (puedes poblarla desde otro lado o dejarla fija para pruebas)
+const issnList = ref([])
+
+// Llama este método para poblar la tabla con los datos individuales
+async function cargarRevistasPorIssn() {
+  revistas.value = []
+  const token = localStorage.getItem('jwt')
+  for (const issn of issnList.value) {
+    try {
+      const response = await api.get(`/Revistas/${issn}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      revistas.value.push(response.data)
+    } catch (error) {
+      // Si alguna revista no se encuentra, puedes mostrar un error o ignorar
+      console.error(`Error al obtener revista ${issn}:`, error)
+    }
+  }
+}
 
 const columns = [
   { name: 'issn', label: 'ISSN', field: 'issn', align: 'left' },
@@ -121,7 +165,7 @@ async function onDelete(row) {
   successMsg.value = ''
   try {
     const token = localStorage.getItem('jwt')
-    await api.delete(`/api/Revistas/${row.issn}`, {
+    await api.delete(`/Revistas/${row.issn}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     successMsg.value = 'Revista eliminada correctamente.'
@@ -139,7 +183,7 @@ async function guardarRevista() {
     const token = localStorage.getItem('jwt')
     if (editando.value) {
       await api.put(
-        `/api/Revistas/${revistaForm.value.issn}`,
+        `/Revistas/${revistaForm.value.issn}`,
         {
           Issn: revistaForm.value.issn,
           Titulo: revistaForm.value.titulo,
@@ -155,7 +199,7 @@ async function guardarRevista() {
       successMsg.value = 'Revista actualizada correctamente.'
     } else {
       await api.post(
-        '/api/Revistas',
+        '/Revistas',
         {
           Issn: revistaForm.value.issn,
           Titulo: revistaForm.value.titulo,
@@ -178,10 +222,11 @@ async function guardarRevista() {
   }
 }
 
+// Si quieres seguir usando la carga masiva, deja este método:
 async function cargarRevistas() {
   try {
     const token = localStorage.getItem('jwt')
-    const response = await api.get('/api/Revistas', {
+    const response = await api.get('/Revistas', {
       headers: { Authorization: `Bearer ${token}` },
     })
     revistas.value = response.data
@@ -192,5 +237,22 @@ async function cargarRevistas() {
   }
 }
 
-onMounted(cargarRevistas)
+// Al montar, primero obtenemos todos los ISSN, luego consultamos individualmente
+onMounted(async () => {
+  try {
+    const token = localStorage.getItem('jwt')
+    const response = await api.get('/Revistas', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    // Extrae los ISSN de la consulta masiva
+    issnList.value = Array.isArray(response.data) ? response.data.map((r) => r.issn) : []
+    // Ahora consulta individualmente cada revista
+    await cargarRevistasPorIssn()
+  } catch (error) {
+    revistas.value = []
+    errorMsg.value =
+      error?.response?.data?.message || error.message || 'Error al obtener ISSN de revistas.'
+    console.error('Error al obtener ISSN de revistas:', error)
+  }
+})
 </script>

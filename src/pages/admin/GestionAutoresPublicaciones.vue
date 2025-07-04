@@ -1,24 +1,29 @@
 <template>
-  <q-page class="q-pa-md">
+  <q-page class="q-pa-md" style="position: relative; min-height: 80vh">
     <div class="text-h5 q-mb-md">Gestión de Autores de Publicaciones</div>
     <div class="row q-mb-md items-center">
-      <q-btn color="primary" label="Nuevo Autor" class="q-mr-md" @click="abrirModalCrear" />
+      <BaseButton
+        color="primary"
+        label="Nuevo Autor"
+        customClass="q-mr-md"
+        @click="abrirModalCrear"
+      />
     </div>
-    <q-table
+    <BaseTable
       :rows="autores"
       :columns="columns"
-      row-key="id"
+      rowKey="id"
       flat
       bordered
       :pagination="{ rowsPerPage: 10 }"
     >
-      <template v-slot:body-cell-acciones="props">
+      <template #body-cell-acciones="props">
         <q-td align="center">
-          <q-btn size="sm" color="secondary" icon="edit" flat @click="onEdit(props.row)" />
-          <q-btn size="sm" color="negative" icon="delete" flat @click="onDelete(props.row)" />
+          <BaseButton size="sm" color="secondary" icon="edit" flat @click="onEdit(props.row)" />
+          <BaseButton size="sm" color="negative" icon="delete" flat @click="onDelete(props.row)" />
         </q-td>
       </template>
-    </q-table>
+    </BaseTable>
     <q-banner v-if="errorMsg" class="bg-red text-white q-mt-md">
       {{ errorMsg }}
     </q-banner>
@@ -31,29 +36,25 @@
       <q-card style="min-width: 400px">
         <q-card-section>
           <div class="text-h6">{{ editando ? 'Editar' : 'Nuevo' }} Autor de Publicación</div>
-          <q-select
+          <BaseSelect
             v-model="autorForm.publicacionId"
             :options="publicacionesOptions"
+            label="Publicación"
             option-label="titulo"
             option-value="publicacionId"
-            label="Publicación"
             dense
             class="q-mb-sm"
-            emit-value
-            map-options
           />
-          <q-select
+          <BaseSelect
             v-model="autorForm.profesorId"
             :options="profesoresOptions"
+            label="Profesor"
             option-label="nombreCompleto"
             option-value="profesorId"
-            label="Profesor"
             dense
             class="q-mb-sm"
-            emit-value
-            map-options
           />
-          <q-input
+          <BaseInput
             v-model.number="autorForm.ordenAutor"
             label="Orden del Autor"
             dense
@@ -61,7 +62,7 @@
             type="number"
             min="1"
           />
-          <q-input
+          <BaseInput
             v-model.number="autorForm.porcentajeParticipacion"
             label="% Participación"
             dense
@@ -72,8 +73,8 @@
           />
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="negative" v-close-popup />
-          <q-btn
+          <BaseButton flat label="Cancelar" color="negative" v-close-popup />
+          <BaseButton
             flat
             :label="editando ? 'Guardar' : 'Crear'"
             color="primary"
@@ -82,12 +83,18 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <BackButton label="Volver" style="position: fixed; left: 32px; bottom: 32px; z-index: 20" />
   </q-page>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { api } from 'src/boot/axios'
+import BaseInput from 'src/components/common/BaseInput.vue'
+import BaseButton from 'src/components/common/BaseButton.vue'
+import BaseTable from 'src/components/common/BaseTable.vue'
+import BaseSelect from 'src/components/common/BaseSelect.vue'
+import BackButton from 'src/components/common/BackButton.vue'
 
 const autores = ref([])
 const publicacionesOptions = ref([])
@@ -148,7 +155,7 @@ async function onDelete(row) {
   successMsg.value = ''
   try {
     const token = localStorage.getItem('jwt')
-    await api.delete(`/api/AutoresPublicacion/${row.id}`, {
+    await api.delete(`/AutoresPublicacion/${row.id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     successMsg.value = 'Autor eliminado correctamente.'
@@ -182,7 +189,7 @@ async function guardarAutor() {
     const token = localStorage.getItem('jwt')
     if (editando.value) {
       await api.put(
-        `/api/AutoresPublicacion/${autorForm.value.id}`,
+        `/AutoresPublicacion/${autorForm.value.id}`,
         {
           Id: autorForm.value.id,
           PublicacionId: autorForm.value.publicacionId,
@@ -195,7 +202,7 @@ async function guardarAutor() {
       successMsg.value = 'Autor actualizado correctamente.'
     } else {
       await api.post(
-        '/api/AutoresPublicacion',
+        '/AutoresPublicacion',
         {
           PublicacionId: autorForm.value.publicacionId,
           ProfesorId: autorForm.value.profesorId,
@@ -217,7 +224,7 @@ async function guardarAutor() {
 async function cargarAutores() {
   try {
     const token = localStorage.getItem('jwt')
-    const response = await api.get('/api/AutoresPublicacion', {
+    const response = await api.get('/AutoresPublicacion', {
       headers: { Authorization: `Bearer ${token}` },
     })
     // Mapear para mostrar nombre de profesor y título de publicación
@@ -242,7 +249,7 @@ async function cargarAutores() {
 async function cargarPublicaciones() {
   try {
     const token = localStorage.getItem('jwt')
-    const response = await api.get('/api/Publicaciones', {
+    const response = await api.get('/Publicaciones', {
       headers: { Authorization: `Bearer ${token}` },
     })
     publicacionesOptions.value = response.data.map((p) => ({
@@ -257,7 +264,7 @@ async function cargarPublicaciones() {
 async function cargarProfesores() {
   try {
     const token = localStorage.getItem('jwt')
-    const response = await api.get('/api/Profesores', {
+    const response = await api.get('/Profesores', {
       headers: { Authorization: `Bearer ${token}` },
     })
     profesoresOptions.value = response.data.map((p) => ({

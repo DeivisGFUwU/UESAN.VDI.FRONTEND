@@ -1,24 +1,29 @@
 <template>
-  <q-page class="q-pa-md">
+  <q-page class="q-pa-md" style="position: relative; min-height: 80vh">
     <div class="text-h5 q-mb-md">Asignación de Proyectos</div>
     <div class="row q-mb-md items-center">
-      <q-btn color="primary" label="Nueva Asignación" class="q-mr-md" @click="abrirModalCrear" />
+      <BaseButton
+        color="primary"
+        label="Nueva Asignación"
+        customClass="q-mr-md"
+        @click="abrirModalCrear"
+      />
     </div>
-    <q-table
+    <BaseTable
       :rows="asignaciones"
       :columns="columns"
-      row-key="asignacionId"
+      rowKey="asignacionId"
       flat
       bordered
       :pagination="{ rowsPerPage: 5 }"
     >
-      <template v-slot:body-cell-acciones="props">
+      <template #body-cell-acciones="props">
         <q-td align="center">
-          <q-btn size="sm" color="secondary" icon="edit" flat @click="onEdit(props.row)" />
-          <q-btn size="sm" color="negative" icon="delete" flat @click="onDelete(props.row)" />
+          <BaseButton size="sm" color="secondary" icon="edit" flat @click="onEdit(props.row)" />
+          <BaseButton size="sm" color="negative" icon="delete" flat @click="onDelete(props.row)" />
         </q-td>
       </template>
-    </q-table>
+    </BaseTable>
     <q-banner v-if="errorMsg" class="bg-red text-white q-mt-md">
       {{ errorMsg }}
     </q-banner>
@@ -31,29 +36,25 @@
       <q-card style="min-width: 400px">
         <q-card-section>
           <div class="text-h6">{{ editando ? 'Editar' : 'Nueva' }} Asignación</div>
-          <q-select
+          <BaseSelect
             v-model="asignacionForm.proyectoId"
             :options="proyectosOptions"
+            label="Proyecto"
             option-label="titulo"
             option-value="proyectoId"
-            label="Proyecto"
             dense
             class="q-mb-sm"
-            emit-value
-            map-options
           />
-          <q-select
+          <BaseSelect
             v-model="asignacionForm.profesorId"
             :options="profesoresOptions"
+            label="Profesor"
             option-label="nombreCompleto"
             option-value="profesorId"
-            label="Profesor"
             dense
             class="q-mb-sm"
-            emit-value
-            map-options
           />
-          <q-select
+          <BaseSelect
             v-model="asignacionForm.rolEnProyecto"
             :options="['Investigador Principal', 'Colaborador']"
             label="Rol en Proyecto"
@@ -62,8 +63,8 @@
           />
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="negative" v-close-popup />
-          <q-btn
+          <BaseButton flat label="Cancelar" color="negative" v-close-popup />
+          <BaseButton
             flat
             :label="editando ? 'Guardar' : 'Asignar'"
             color="primary"
@@ -72,12 +73,17 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <BackButton label="Volver" style="position: fixed; left: 32px; bottom: 32px; z-index: 20" />
   </q-page>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { api } from 'src/boot/axios'
+import BaseButton from 'src/components/common/BaseButton.vue'
+import BaseTable from 'src/components/common/BaseTable.vue'
+import BaseSelect from 'src/components/common/BaseSelect.vue'
+import BackButton from 'src/components/common/BackButton.vue'
 
 const asignaciones = ref([])
 const proyectosOptions = ref([])
@@ -132,7 +138,7 @@ async function onDelete(row) {
   successMsg.value = ''
   try {
     const token = localStorage.getItem('jwt')
-    await api.delete(`/api/AsignacionProyecto/${row.asignacionId}`, {
+    await api.delete(`/AsignacionProyecto/${row.asignacionId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     successMsg.value = 'Asignación eliminada correctamente.'
@@ -151,7 +157,7 @@ async function guardarAsignacion() {
     const token = localStorage.getItem('jwt')
     if (editando.value) {
       await api.put(
-        `/api/AsignacionProyecto/${asignacionForm.value.asignacionId}`,
+        `/AsignacionProyecto/${asignacionForm.value.asignacionId}`,
         {
           AsignacionId: asignacionForm.value.asignacionId,
           ProyectoId: asignacionForm.value.proyectoId,
@@ -165,7 +171,7 @@ async function guardarAsignacion() {
       successMsg.value = 'Asignación actualizada correctamente.'
     } else {
       await api.post(
-        '/api/AsignacionProyecto',
+        '/AsignacionProyecto',
         {
           ProyectoId: asignacionForm.value.proyectoId,
           ProfesorId: asignacionForm.value.profesorId,
@@ -189,19 +195,55 @@ async function guardarAsignacion() {
 async function cargarAsignaciones() {
   try {
     const token = localStorage.getItem('jwt')
-    const response = await api.get('/api/AsignacionProyecto', {
+    // 1. Obtener todos los IDs de asignaciones
+    const response = await api.get('/AsignacionProyecto', {
       headers: { Authorization: `Bearer ${token}` },
     })
-    // Mapear para mostrar nombres de proyecto y profesor, pero conservar los IDs originales
-    asignaciones.value = response.data.map((a) => {
+    const ids = Array.isArray(response.data) ? response.data.map((a) => a.asignacionId) : []
+    // 2. Obtener cada asignación por su ID
+    const detalles = await Promise.all(
+      ids.map(async (id) => {
+        const res = await api.get(`/AsignacionProyecto/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        return res.data
+      }),
+    )
+    // 3. Relacionar con proyectos y obtener apellido del usuario del profesor (consulta masiva)
+    // Obtener todos los profesores y usuarios
+    let profesores = []
+    let usuarios = []
+    try {
+      const profesoresRes = await api.get('/profesores')
+      profesores = Array.isArray(profesoresRes.data) ? profesoresRes.data : []
+    } catch {
+      // Error al obtener profesores, continuar con arreglo vacío
+    }
+    try {
+      const usuariosRes = await api.get('/usuarios')
+      usuarios = Array.isArray(usuariosRes.data) ? usuariosRes.data : []
+    } catch {
+      // Error al obtener usuarios, continuar con arreglo vacío
+    }
+
+    asignaciones.value = detalles.map((a) => {
+      // Proyecto
       const proyecto = proyectosOptions.value.find((p) => p.proyectoId === a.proyectoId)
-      const profesor = profesoresOptions.value.find((p) => p.profesorId === a.profesorId)
+      // Buscar profesor y usuario
+      let apellidoUsuario = a.profesorId
+      const profesor = profesores.find((p) => p.profesorId === a.profesorId)
+      if (profesor && profesor.usuarioId) {
+        const usuario = usuarios.find((u) => u.usuarioId === profesor.usuarioId)
+        if (usuario && usuario.apellido) {
+          apellidoUsuario = usuario.apellido
+        }
+      }
       return {
         ...a,
         proyecto: proyecto ? proyecto.titulo : a.proyectoId,
-        profesor: profesor ? profesor.nombreCompleto : a.profesorId,
-        proyectoId: a.proyectoId, // Conserva el ID para edición
-        profesorId: a.profesorId, // Conserva el ID para edición
+        profesor: apellidoUsuario,
+        proyectoId: a.proyectoId,
+        profesorId: a.profesorId,
       }
     })
   } catch (error) {
@@ -214,7 +256,7 @@ async function cargarAsignaciones() {
 async function cargarProyectos() {
   try {
     const token = localStorage.getItem('jwt')
-    const response = await api.get('/api/Proyectos', {
+    const response = await api.get('/Proyectos', {
       headers: { Authorization: `Bearer ${token}` },
     })
     console.log('Proyectos desde API:', response.data)
@@ -227,7 +269,7 @@ async function cargarProyectos() {
 async function cargarProfesores() {
   try {
     const token = localStorage.getItem('jwt')
-    const response = await api.get('/api/Profesores', {
+    const response = await api.get('/Profesores', {
       headers: { Authorization: `Bearer ${token}` },
     })
     console.log('Profesores desde API:', response.data)

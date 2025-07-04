@@ -1,3 +1,8 @@
+// Eliminar token y usuario del localStorage al cerrar la pestaña o recargar
+window.addEventListener('unload', () => {
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
+})
 import { defineRouter } from '#q-app/wrappers'
 import {
   createRouter,
@@ -22,13 +27,13 @@ export default defineRouter(function () {
 
   // Guard global para proteger rutas privadas
   Router.beforeEach((to, from, next) => {
-    const publicPages = ['/login', '/register', '/recuperar']
+    const publicPages = ['/', '/login', '/register', '/recuperar']
     const isPublic = publicPages.includes(to.path)
-    const token = localStorage.getItem('jwt')
+    const token = localStorage.getItem('token')
 
     // Redirigir a login si intenta acceder a ruta privada sin token
     if (!isPublic && !token) {
-      return next('/login')
+      return next('/')
     }
 
     // Evitar que un usuario logueado acceda a login/register/recuperar
@@ -37,7 +42,8 @@ export default defineRouter(function () {
       const user = JSON.parse(localStorage.getItem('user') || '{}')
       if (user.rol === 3) return next('/admin')
       if (user.rol === 2) return next('/profesor')
-      if (user.rol === 1) return next('/alumno/dashboard')
+      // Cambié alumno por postulante, porque quien se loguea es el usuario postulante a readactar algo de investigación
+      if (user.rol === 1) return next('/postulante')
       return next('/')
     }
 
