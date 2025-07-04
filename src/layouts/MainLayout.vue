@@ -4,7 +4,7 @@
     view="hHh lpR fFf"
   >
     <!-- Cabecera con el logo y botón de cerrar sesión -->
-    <q-header elevated class="header">
+    <q-header v-if="mostrarHeader" elevated class="header">
       <q-toolbar>
         <q-toolbar-title>
           <img src="/icons/Logo_VDI.png" alt="Logo ESAN VDI" height="40" />
@@ -54,6 +54,11 @@ export default {
     mostrarCarrusel() {
       // Solo mostrar el carrusel en la página principal (ruta exacta '/')
       return this.$route.path === '/'
+    },
+    mostrarHeader() {
+      // No mostrar el header en cualquier ruta de admin o profesor
+      const path = this.$route.path
+      return !(path.startsWith('/admin') || path.startsWith('/profesor'))
     },
   },
   data() {

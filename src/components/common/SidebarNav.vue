@@ -19,7 +19,7 @@
         tabindex="0"
       >
         <q-item-section avatar>
-          <q-icon :name="item.icon" color="primary" />
+          <q-icon :name="item.icon" color="black" />
         </q-item-section>
         <q-item-section v-if="!collapsed">
           <q-item-label>{{ item.label }}</q-item-label>

@@ -1,7 +1,7 @@
 <template>
   <div class="relative min-h-screen w-full flex items-center justify-center font-sans">
     <div class="login-bg" aria-hidden="true"></div>
-
+    <LoadingSpinner v-if="loading" />
     <q-card
       class="q-pa-xl q-mx-auto q-mt-xl q-mb-xl shadow-10"
       style="min-width: 320px; max-width: 350px; background: rgba(255, 255, 255, 0.85)"
@@ -62,17 +62,21 @@
 
 <script>
 import RespJWT from '../../models/RespJWT'
+import LoadingSpinner from '../common/LoadingSpinner.vue'
 
 export default {
+  components: { LoadingSpinner },
   data() {
     return {
       Email: '',
       Password: '',
       showPassword: false,
+      loading: false,
     }
   },
   methods: {
     iniciarSesion() {
+      this.loading = true
       const endpointURL = '/usuarios/signIn' // Ajusta la URL según tu backend
       const user = {
         Correo: this.Email,
@@ -137,6 +141,9 @@ export default {
             type: 'negative',
             message: msg,
           })
+        })
+        .finally(() => {
+          this.loading = false
         })
     },
     onReset() {
