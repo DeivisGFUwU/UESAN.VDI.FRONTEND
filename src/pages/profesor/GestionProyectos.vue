@@ -2,12 +2,7 @@
   <q-page class="q-pa-md" style="position: relative">
     <div class="text-h5 q-mb-md">Mis Proyectos</div>
     <div class="row q-mb-md items-center">
-      <q-btn
-        color="primary"
-        label="Nuevo Proyecto"
-        class="q-mr-md"
-        @click="abrirModalNuevo = true"
-      />
+      <q-btn color="primary" label="Nuevo Proyecto" class="q-mr-md" @click="abrirNuevoProyecto" />
       <BaseInput
         v-model="busquedaTitulo"
         label="Buscar por Título"
@@ -135,6 +130,11 @@ async function cargarProyectos() {
     errorMsg.value = error?.response?.data?.message || error.message || 'Error al obtener proyectos'
     console.error('Error al obtener proyectos:', error)
   }
+}
+
+function abrirNuevoProyecto() {
+  resetNuevoProyecto()
+  abrirModalNuevo.value = true
 }
 
 function resetNuevoProyecto() {

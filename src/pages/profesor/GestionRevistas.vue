@@ -35,9 +35,6 @@ const issnFiltro = ref('')
 const columns = [
   { name: 'issn', label: 'ISSN', field: 'issn', align: 'left', sortable: true },
   { name: 'titulo', label: 'Título', field: 'titulo', align: 'left', sortable: true },
-  { name: 'cuartil', label: 'Cuartil', field: 'cuartil', align: 'left', sortable: true },
-  { name: 'categoria', label: 'Categoría', field: 'categoria', align: 'left', sortable: true },
-  { name: 'pais', label: 'País', field: 'pais', align: 'left', sortable: true },
 ]
 
 const revistasFiltradas = computed(() => {
