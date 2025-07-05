@@ -8,15 +8,13 @@
         v-for="item in items"
         :key="item.label"
         clickable
-        tag="router-link"
-        :to="item.route"
-        exact
         :active="isActive(item)"
         :class="{ 'sidebar-active': isActive(item) }"
         :aria-current="isActive(item) ? 'page' : undefined"
         :aria-label="item.label"
         role="listitem"
         tabindex="0"
+        @click="handleSidebarClick(item)"
       >
         <q-item-section avatar>
           <q-icon :name="item.icon" color="black" />
@@ -31,18 +29,35 @@
 </template>
 
 <script setup>
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 defineProps({
   items: { type: Array, required: true },
   collapsed: { type: Boolean, default: false },
 })
 const route = useRoute()
+const router = useRouter()
 function isActive(item) {
   if (!item || !item.route) return false
   // Soporta rutas exactas e ignorando trailing slash
   const current = route.path.replace(/\/$/, '').toLowerCase()
   const target = item.route.replace(/\/$/, '').toLowerCase()
   return current === target
+}
+
+function handleSidebarClick(item) {
+  // Si el ítem es el chatbot, abre el chat flotante global si existe
+  if (item && item.route && item.route.toLowerCase().includes('chat')) {
+    // Busca en window si está registrado globalmente
+    if (window && window.$chatBotToggle) {
+      window.$chatBotToggle()
+      return
+    }
+    // Si no, navega a la ruta normalmente
+  }
+  // Navegación normal (SPA)
+  if (item && item.route) {
+    router.push(item.route)
+  }
 }
 </script>
 
