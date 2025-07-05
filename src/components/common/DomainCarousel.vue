@@ -88,8 +88,10 @@ function goTo(idx) {
 
 function handleCardButtonClick() {
   const item = props.items[current.value]
-  if (item && item.action && item.action.route) {
-    router.push(item.action.route)
+  // Soporta tanto item.route como item.action.route para compatibilidad
+  const route = item?.route || item?.action?.route
+  if (route) {
+    router.push(route)
   }
 }
 
