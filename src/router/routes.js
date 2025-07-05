@@ -81,6 +81,7 @@ const routes = [
       },
     ],
   },
+  // Eliminada la ruta de ChatBotPage
   {
     path: '/profesor',
     component: () => import('layouts/MainLayout.vue'),

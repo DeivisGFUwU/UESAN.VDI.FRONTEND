@@ -8,7 +8,7 @@
       </div>
       <div class="header-right">
         <q-btn flat dense icon="language" class="header-icon" />
-        <q-btn flat dense icon="chat" class="header-icon" />
+        <!-- Eliminado ícono de chat -->
         <img src="/icons/anonimo.jpg" alt="Usuario" class="user-avatar" />
       </div>
     </div>
@@ -47,6 +47,7 @@
           <div class="dashboard-content-row">
             <div class="dashboard-content-left">
               <router-view class="q-mt-lg" />
+              <ChatBot />
             </div>
             <div class="dashboard-content-right">
               <DomainCarousel :items="carouselItems" />
@@ -98,6 +99,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import ChatBot from 'src/components/chatBot/chatBot.vue'
 import { useRouter } from 'vue-router'
 import SidebarNav from 'src/components/common/SidebarNav.vue'
 import DomainCarousel from 'src/components/common/DomainCarousel.vue'

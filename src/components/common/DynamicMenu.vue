@@ -5,10 +5,10 @@
         v-for="item in filteredMenu"
         :key="item.label"
         flat
-        :to="item.route"
         :icon="item.icon"
         :color="item.color"
         class="q-mx-sm"
+        @click="goTo(item.route)"
       >
         {{ item.label }}
       </q-btn>
@@ -24,6 +24,7 @@
 import { computed } from 'vue'
 import { useAuthStore } from 'src/stores/authStore'
 import BaseButton from './BaseButton.vue'
+import { useRouter } from 'vue-router'
 
 const authStore = useAuthStore()
 const user = computed(() => authStore.user || {})
@@ -125,6 +126,12 @@ const toolbarColor = computed(() => {
   if (roleId.value === 2) return 'indigo-7'
   return 'blue-grey-7'
 })
+
+const router = useRouter()
+
+function goTo(route) {
+  if (route) router.push(route)
+}
 </script>
 
 <style scoped>

@@ -72,16 +72,8 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <BackButton class="back-btn-bottom" />
   </q-page>
-  <BackButton class="back-btn-bottom" />
-  <style scoped>
-    .back-btn-bottom {
-      position: fixed;
-      left: 32px;
-      bottom: 32px;
-      z-index: 20;
-    }
-  </style>
 </template>
 
 <script setup>
@@ -238,3 +230,12 @@ async function cargarUsuarios() {
 
 onMounted(cargarUsuarios)
 </script>
+
+<style scoped>
+.back-btn-bottom {
+  position: fixed;
+  left: 32px;
+  bottom: 32px;
+  z-index: 20;
+}
+</style>

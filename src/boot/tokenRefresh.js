@@ -3,7 +3,7 @@
 
 import { LocalStorage, Notify } from 'quasar'
 import axios from 'axios'
-import router from '../router'
+// import router from '../router'
 
 let refreshTimeout = null
 let lastActivity = Date.now()
@@ -53,7 +53,7 @@ function scheduleRefresh(token) {
       } else {
         LocalStorage.remove('token')
         Notify.create({ type: 'negative', message: 'Sesión cerrada por inactividad.' })
-        router.push('/login')
+        window.location.href = '/login'
       }
     }, refreshTime)
   }
@@ -64,7 +64,7 @@ async function refreshToken() {
     const oldToken = LocalStorage.getItem('token')
     if (!oldToken) throw new Error('No token')
     const response = await axios.post(
-      '/api/usuarios/refresh-token',
+      '/usuarios/refresh-token',
       {},
       {
         headers: { Authorization: `Bearer ${oldToken}` },
@@ -76,7 +76,7 @@ async function refreshToken() {
   } catch {
     LocalStorage.remove('token')
     Notify.create({ type: 'negative', message: 'Sesión expirada. Inicia sesión de nuevo.' })
-    router.push('/login')
+    window.location.href = '/login'
   }
 }
 

@@ -8,7 +8,7 @@
       </div>
       <div class="header-right">
         <q-btn flat dense icon="language" class="header-icon" />
-        <q-btn flat dense icon="chat" class="header-icon" />
+        <!-- Eliminado ícono de chat -->
         <img src="/icons/anonimo.jpg" alt="Usuario" class="user-avatar" />
       </div>
     </div>
@@ -73,6 +73,7 @@
                 />
               </div>
               <router-view class="q-mt-lg" />
+              <ChatBot />
             </div>
             <div class="dashboard-content-right">
               <DomainCarousel :items="carouselItems" />
@@ -138,6 +139,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import ChatBot from 'src/components/chatBot/chatBot.vue'
 import { useAuthStore } from 'src/stores/authStore'
 import SidebarNav from 'src/components/common/SidebarNav.vue'
 import DomainCarousel from 'src/components/common/DomainCarousel.vue'
@@ -157,6 +159,7 @@ const usersCount = ref('-')
 const proyectosCount = ref('-')
 const publicacionesCount = ref('-')
 const profesoresCount = ref('-')
+
 const newsSlide = ref(1)
 
 async function fetchMetrics() {
@@ -205,89 +208,60 @@ const carouselItems = [
     label: 'Usuarios Activos',
     desc: 'Visualiza y administra los usuarios activos.',
     route: '/admin/Gestion-usuarios',
-    endpoint: '/usuarios',
-    action: { label: 'Ir', onClick: () => (window.location.href = '/admin/Gestion-usuarios') },
   },
   {
     icon: 'work',
     label: 'Proyectos activos',
     desc: 'Administra todos los proyectos de investigación.',
     route: '/admin/Gestion-Proyectos',
-    endpoint: '/proyectos',
-    action: { label: 'Ir', onClick: () => (window.location.href = '/admin/Gestion-Proyectos') },
   },
   {
     icon: 'library_books',
     label: 'Publicaciones',
     desc: 'Gestiona publicaciones científicas.',
     route: '/admin/Gestion-publicaciones',
-    endpoint: '/publicaciones',
-    action: { label: 'Ir', onClick: () => (window.location.href = '/admin/Gestion-publicaciones') },
   },
   {
     icon: 'school',
     label: 'Profesores',
     desc: 'Gestiona los datos de los profesores.',
     route: '/admin/Gestion-profesores',
-    endpoint: '/profesores',
-    action: { label: 'Ir', onClick: () => (window.location.href = '/admin/Gestion-profesores') },
   },
   {
     icon: 'assignment_ind',
     label: 'Asignación de Proyectos',
     desc: 'Asigna proyectos a profesores y equipos.',
     route: '/admin/Asignacion-Proyectos',
-    endpoint: '/asignaciones',
-    action: { label: 'Ir', onClick: () => (window.location.href = '/admin/Asignacion-Proyectos') },
   },
   {
     icon: 'menu_book',
     label: 'Gestión de Revistas',
     desc: 'Administra revistas académicas.',
     route: '/admin/gestion-revistas',
-    endpoint: '/revistas',
-    action: { label: 'Ir', onClick: () => (window.location.href = '/admin/gestion-revistas') },
   },
   {
     icon: 'assignment',
     label: 'Formularios de Investigación',
     desc: 'Gestiona formularios de investigación.',
     route: '/admin/Gestion-formularios-investigacion',
-    endpoint: '/formularios',
-    action: {
-      label: 'Ir',
-      onClick: () => (window.location.href = '/admin/Gestion-formularios-investigacion'),
-    },
   },
   {
     icon: 'timeline',
     label: 'Líneas de Investigación',
     desc: 'Gestiona líneas de investigación.',
     route: '/admin/Gestion-lineas-investigacion',
-    endpoint: '/lineas',
-    action: {
-      label: 'Ir',
-      onClick: () => (window.location.href = '/admin/Gestion-lineas-investigacion'),
-    },
   },
   {
     icon: 'groups',
     label: 'Autores de Publicaciones',
     desc: 'Gestiona autores de publicaciones.',
     route: '/admin/Gestion-autores-publicacion',
-    endpoint: '/autores',
-    action: {
-      label: 'Ir',
-      onClick: () => (window.location.href = '/admin/Gestion-autores-publicacion'),
-    },
   },
   {
     icon: 'chat',
     label: 'Chat IA',
     desc: 'Comunícate con IA.',
     route: '/admin/Chat-interno',
-    endpoint: null,
-    action: { label: 'Ir', onClick: () => (window.location.href = '/admin/Chat-interno') },
   },
 ]
 </script>

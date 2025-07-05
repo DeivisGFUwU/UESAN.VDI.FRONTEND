@@ -1,8 +1,19 @@
-// src/components/chatBot/useGimini.js
+import proyectoService from 'src/services/proyectoService'
+import publicacionService from 'src/services/publicacionService'
+let revistaService = null
+try {
+  revistaService = require('src/services/revistaService').default
+} catch {
+  // Si no existe, no pasa nada
+}
+
+// Simulación de rol actual (debería venir del authStore o JWT)
+const getUserRole = () => localStorage.getItem('userRole') // 'ADMIN' o 'PROFESOR'
+
 export async function sendMessageToGemini(message) {
   const endpoint =
     'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
-  const apiKey = 'AIzaSyA9RTBx0n1fYhYlmfmuGkFtRe_ktU6-kNE' // <-- Reemplaza por tu API KEY real
+  const apiKey = 'AIzaSyD6h2GYQbbOe1POE5Y_VMPewkHdL-GkACw' // Cámbialo por tu clave real
 
   const response = await fetch(`${endpoint}?key=${apiKey}`, {
     method: 'POST',

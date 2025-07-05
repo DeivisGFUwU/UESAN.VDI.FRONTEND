@@ -45,17 +45,14 @@
     <div class="domain-carousel-content">
       <div class="carousel-container">
         <q-btn flat round icon="chevron_left" @click="prev" />
-        <q-card class="domain-card">
+        <q-card
+          class="domain-card clickable-card"
+          @click="handleCardButtonClick"
+          :style="items[current].action && items[current].action.route ? 'cursor:pointer;' : ''"
+        >
           <q-icon :name="items[current].icon" size="48px" color="esan-red" />
           <div class="domain-title">{{ items[current].label }}</div>
           <div class="domain-desc">{{ items[current].desc }}</div>
-          <q-btn
-            v-if="items[current].action && items[current].action.route"
-            color="esan-red"
-            :label="items[current].action.label"
-            @click="handleCardButtonClick"
-            class="q-mt-md"
-          />
         </q-card>
         <q-btn flat round icon="chevron_right" @click="next" />
       </div>
