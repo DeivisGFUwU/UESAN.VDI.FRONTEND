@@ -2,7 +2,7 @@
 export async function sendMessageToGemini(message) {
   const endpoint =
     'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
-  const apiKey = 'AIzaSyD6h2GYQbbOe1POE5Y_VMPewkHdL-GkACw' // Cámbialo por tu clave real
+  const apiKey = 'AIzaSyA9RTBx0n1fYhYlmfmuGkFtRe_ktU6-kNE' // <-- Reemplaza por tu API KEY real
 
   const response = await fetch(`${endpoint}?key=${apiKey}`, {
     method: 'POST',

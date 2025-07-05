@@ -299,5 +299,7 @@ async function recargarTodo() {
   await cargarFormularios()
 }
 
-onMounted(recargarTodo)
+onMounted(() => {
+  recargarTodo()
+})
 </script>

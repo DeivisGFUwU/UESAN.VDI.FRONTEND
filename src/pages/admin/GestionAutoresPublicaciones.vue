@@ -83,8 +83,8 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <BackButton label="Volver" style="position: fixed; left: 32px; bottom: 32px; z-index: 20" />
   </q-page>
+  <BackButton label="Volver" style="position: fixed; top: 72px; left: 32px; z-index: 200" />
 </template>
 
 <script setup>
@@ -276,11 +276,9 @@ async function cargarProfesores() {
   }
 }
 
-async function recargarTodo() {
-  await cargarPublicaciones()
-  await cargarProfesores()
-  await cargarAutores()
-}
-
-onMounted(recargarTodo)
+onMounted(() => {
+  cargarPublicaciones()
+  cargarProfesores()
+  cargarAutores()
+})
 </script>

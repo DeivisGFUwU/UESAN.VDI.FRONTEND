@@ -258,5 +258,7 @@ async function recargarTodo() {
   await cargarPublicaciones()
 }
 
-onMounted(recargarTodo)
+onMounted(() => {
+  recargarTodo()
+})
 </script>

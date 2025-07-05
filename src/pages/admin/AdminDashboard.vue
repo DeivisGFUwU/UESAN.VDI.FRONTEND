@@ -114,9 +114,23 @@
                   "
                 />
               </q-carousel-slide>
+              <q-carousel-slide :name="3">
+                <img
+                  src="/icons/Noticia3.jpeg"
+                  alt="Noticia 3"
+                  style="
+                    width: 235px;
+                    height: 333px;
+                    object-fit: cover;
+                    margin: 0 auto;
+                    border-radius: 12px;
+                  "
+                />
+              </q-carousel-slide>
             </q-carousel>
           </div>
         </div>
+        <ChatBot />
       </div>
     </div>
   </q-page>
@@ -133,6 +147,7 @@ import proyectoService from 'src/services/proyectoService'
 import publicacionService from 'src/services/publicacionService'
 import profesorService from 'src/services/profesorService'
 import { useRouter } from 'vue-router'
+import ChatBot from 'src/components/chatBot/chatBot.vue'
 
 const collapsed = ref(true)
 const authStore = useAuthStore()
@@ -422,7 +437,7 @@ const carouselItems = [
   max-width: 240px;
   margin: 0 8px 16px 8px;
   border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(34,34,34,0.06);
+  box-shadow: 0 2px 8px rgba(34, 34, 34, 0.06);
 }
 .sidebar-toggle {
   color: $esan-red;

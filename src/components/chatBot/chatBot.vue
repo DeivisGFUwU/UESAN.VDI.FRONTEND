@@ -1,61 +1,70 @@
 <template>
   <div>
-    <!-- Botón flotante -->
-    <q-btn round color="primary" icon="chat" class="q-pa-sm chat-float-btn" @click="toggleChat" />
+    <!-- Botón flotante en la esquina inferior derecha -->
+    <q-btn
+      round
+      color="primary"
+      icon="chat"
+      class="q-pa-sm chat-float-btn right"
+      @click="toggleChat"
+    />
 
-    <!-- Ventana del chat -->
-    <q-dialog v-model="isOpen" persistent>
-      <q-card style="width: 400px; max-width: 90vw">
-        <!-- Encabezado -->
-        <q-bar class="bg-esan text-white">
-          <div class="text-h6">Asistente IA</div>
-          <q-space />
-          <q-btn flat icon="close" dense v-close-popup />
-        </q-bar>
+    <!-- Ventana del chat tipo WhatsApp -->
+    <transition name="fade">
+      <div v-if="isOpen" class="whatsapp-chat-float right">
+        <q-card class="whatsapp-chat-card">
+          <!-- Encabezado -->
+          <q-bar class="bg-esan text-white whatsapp-header">
+            <div class="text-h6">Asistente IA</div>
+            <q-space />
+            <q-btn flat icon="close" dense @click="toggleChat" />
+          </q-bar>
 
-        <!-- Cuerpo del chat -->
-        <q-card-section class="scroll q-pa-sm" style="max-height: 320px">
-          <!-- FAQs -->
-          <div class="q-mb-md">
-            <div class="text-subtitle2 text-grey-8 q-mb-xs">Preguntas frecuentes:</div>
-            <q-list dense bordered separator>
-              <q-item v-for="(faq, idx) in faqs" :key="idx" clickable @click="handleSend(faq)">
-                <q-item-section>{{ faq }}</q-item-section>
-              </q-item>
-            </q-list>
-          </div>
-
-          <!-- Mensajes -->
-          <div v-for="(msg, i) in messages" :key="i" class="q-mb-sm">
-            <div :class="msg.sender === 'user' ? 'message message-user' : 'message message-ai'">
-              <div>{{ msg.text }}</div>
-              <div class="timestamp">{{ msg.time }}</div>
+          <!-- Cuerpo del chat -->
+          <q-card-section class="whatsapp-chat-body">
+            <!-- Mensajes -->
+            <div class="whatsapp-messages">
+              <div
+                v-for="(msg, i) in messages"
+                :key="i"
+                :class="
+                  msg.sender === 'user' ? 'wa-message wa-message-user' : 'wa-message wa-message-ai'
+                "
+              >
+                <div class="wa-bubble">
+                  <span>{{ msg.text }}</span>
+                  <span class="wa-timestamp">{{ msg.time }}</span>
+                </div>
+              </div>
+              <div v-if="loading" class="wa-message wa-message-ai wa-bubble wa-bubble-loading">
+                Escribiendo...
+              </div>
             </div>
-          </div>
+          </q-card-section>
 
-          <!-- Cargando -->
-          <div v-if="loading" class="text-center text-grey q-mt-sm">Escribiendo...</div>
-        </q-card-section>
-
-        <!-- Campo de entrada -->
-        <q-card-actions align="around">
-          <q-input
-            outlined
-            v-model="input"
-            placeholder="Escribe tu pregunta..."
-            dense
-            class="col-grow"
-            @keyup.enter="handleSend"
-          />
-          <q-btn
-            color="esan"
-            label="Enviar"
-            @click="handleSend"
-            :disable="loading || !input.trim()"
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+          <!-- Campo de entrada -->
+          <q-card-actions class="whatsapp-input-row">
+            <q-input
+              outlined
+              v-model="input"
+              placeholder="Escribe tu mensaje..."
+              dense
+              class="wa-input"
+              @keyup.enter="handleSend"
+              :disable="loading"
+            />
+            <q-btn
+              color="esan"
+              icon="send"
+              round
+              @click="handleSend"
+              :disable="loading || !input.trim()"
+              class="wa-send-btn"
+            />
+          </q-card-actions>
+        </q-card>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -68,15 +77,6 @@ const isOpen = ref(false)
 const input = ref('')
 const loading = ref(false)
 const messages = ref([])
-
-// Preguntas frecuentes
-const faqs = [
-  '¿Cómo registro una nueva publicación?',
-  '¿Cómo edito mi perfil?',
-  '¿Qué hago si olvidé mi contraseña?',
-  '¿Cómo contacto a soporte?',
-  '¿Cómo veo mis proyectos asignados?',
-]
 
 // Hora actual formateada
 function getTime() {
@@ -121,56 +121,131 @@ function toggleChat() {
 
 <style lang="scss" scoped>
 @import 'src/css/esan.variables.scss';
-/* Botón flotante a la derecha */
-.chat-float-btn {
+
+// Botón flotante a la derecha
+.chat-float-btn.right {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 9999;
+  bottom: 32px;
+  right: 32px;
+  left: auto;
+  z-index: 10001;
 }
-/* Colores institucionales */
-// Colores institucionales
-.bg-esan {
-  background-color: $esan-red;
+// Flotante tipo WhatsApp, ahora abajo a la derecha y sobre el botón
+.whatsapp-chat-float.right {
+  position: fixed;
+  bottom: 90px; // justo encima del botón flotante
+  right: 32px;
+  left: auto;
+  z-index: 10000;
+  width: 370px;
+  max-width: 95vw;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 }
-.text-esan {
-  color: $esan-red;
+.whatsapp-chat-card {
+  width: 100%;
+  height: 100%;
+  border-radius: 18px 18px 8px 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
 }
-.message {
+.whatsapp-header {
+  border-radius: 18px 18px 0 0;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  background: $esan-red;
+  color: #111;
+}
+.whatsapp-chat-body {
+  background: #fff;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 16px 8px 8px 8px;
+  min-height: 220px;
+  max-height: 340px;
+}
+.whatsapp-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wa-message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.wa-message-user {
+  align-items: flex-end;
+}
+.wa-bubble {
+  background: $esan-red;
+  color: #111;
+  border-radius: 18px 18px 4px 18px;
+  padding: 8px 14px;
   max-width: 80%;
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-size: 14px;
-  line-height: 1.4;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  font-size: 15px;
   position: relative;
-  word-wrap: break-word;
-  white-space: pre-wrap;
+  margin-bottom: 2px;
+  word-break: break-word;
+  white-space: pre-line;
 }
-
-// Mensaje del usuario
-.message-user {
-  background-color: $esan-red;
-  color: white;
-  margin-left: auto;
-  margin-right: 4px;
-  border-bottom-right-radius: 0;
+.wa-message-user .wa-bubble {
+  background: #fff;
+  color: #111;
+  border: 1.5px solid $esan-red;
+  border-radius: 18px 18px 18px 4px;
+  align-self: flex-end;
+}
+.wa-message-ai .wa-bubble {
+  background: $esan-red;
+  color: #111;
+  border-radius: 18px 18px 4px 18px;
+  align-self: flex-start;
+}
+.wa-timestamp {
+  display: block;
+  font-size: 11px;
+  color: #888;
+  margin-top: 2px;
   text-align: right;
 }
-
-// Mensaje de la IA
-.message-ai {
-  background-color: $esan-light-grey;
-  color: $esan-black;
-  margin-right: auto;
-  margin-left: 4px;
-  border-bottom-left-radius: 0;
-  text-align: left;
+.wa-bubble-loading {
+  background: #fff;
+  color: #888;
+  font-style: italic;
+  border-radius: 18px 18px 4px 18px;
+  padding: 8px 14px;
+  max-width: 60%;
+  align-self: flex-start;
+  border: 1.5px solid $esan-red;
 }
-
-.timestamp {
-  font-size: $esan-font-size-small;
-  color: $esan-grey;
-  margin-top: 4px;
-  text-align: right;
+.whatsapp-input-row {
+  background: #fff;
+  padding: 8px 8px 8px 12px;
+  border-radius: 0 0 8px 8px;
+  display: flex;
+  align-items: center;
+}
+.wa-input {
+  flex: 1 1 auto;
+  margin-right: 8px;
+}
+.wa-send-btn {
+  min-width: 36px;
+  min-height: 36px;
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

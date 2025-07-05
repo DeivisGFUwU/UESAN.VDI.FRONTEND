@@ -223,7 +223,8 @@ async function guardarUsuario() {
 
 async function cargarUsuarios() {
   try {
-    const token = localStorage.getItem('jwt')
+    // Intenta obtener el token desde 'token' y si no existe, desde 'jwt'
+    let token = localStorage.getItem('token') || localStorage.getItem('jwt')
     const response = await api.get('/Usuarios', {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -236,5 +237,4 @@ async function cargarUsuarios() {
 }
 
 onMounted(cargarUsuarios)
-// ...existing code...
 </script>

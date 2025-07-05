@@ -163,6 +163,20 @@
       </q-card>
     </q-dialog>
 
+    <div v-if="excelPreview.length" class="q-mt-md">
+      <div class="text-h6 q-mb-sm">Vista previa del Excel</div>
+      <q-table
+        :rows="excelPreview"
+        :columns="
+          excelHeaders.map((h) => ({ name: h, label: h, field: (_, i) => _[i], align: 'left' }))
+        "
+        row-key="0"
+        dense
+        flat
+        bordered
+      />
+    </div>
+
     <BackButton class="back-btn-bottom" />
   </q-page>
 </template>
@@ -184,6 +198,7 @@ import BaseSelect from 'src/components/common/BaseSelect.vue'
 import BaseButton from 'src/components/common/BaseButton.vue'
 import BaseTable from 'src/components/common/BaseTable.vue'
 import BackButton from 'src/components/common/BackButton.vue'
+import * as XLSX from 'xlsx'
 
 const proyectos = ref([])
 const errorMsg = ref('')
@@ -203,6 +218,8 @@ const nuevoProyecto = ref({
 })
 const showEditModal = ref(false)
 const proyectoEditando = ref({})
+const excelPreview = ref([])
+const excelHeaders = ref([])
 
 const columns = [
   { name: 'proyectoId', label: 'ID', field: 'proyectoId', align: 'left' },
@@ -278,11 +295,27 @@ async function onBuscarPorId() {
 async function onArchivoExcel(files) {
   errorMsg.value = ''
   successMsg.value = ''
+  excelPreview.value = []
+  excelHeaders.value = []
   if (!files || files.length === 0) {
     errorMsg.value = 'Debe seleccionar un archivo Excel.'
     return
   }
   const file = files[0]
+  // Visualización previa
+  try {
+    const data = await file.arrayBuffer()
+    const workbook = XLSX.read(data, { type: 'array' })
+    const firstSheet = workbook.Sheets[workbook.SheetNames[0]]
+    const json = XLSX.utils.sheet_to_json(firstSheet, { header: 1 })
+    if (json.length > 0) {
+      excelHeaders.value = json[0]
+      excelPreview.value = json.slice(1)
+    }
+  } catch {
+    errorMsg.value = 'No se pudo leer el archivo para previsualización.'
+  }
+  // Carga al backend
   const formData = new FormData()
   formData.append('file', file)
   try {

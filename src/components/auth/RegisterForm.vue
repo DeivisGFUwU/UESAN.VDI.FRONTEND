@@ -98,9 +98,12 @@ export default {
         .then(() => {
           this.$q.notify({
             type: 'positive',
-            message: 'Registro exitoso. Ahora puedes iniciar sesión.',
+            message: 'Nuevo usuario registrado',
+            timeout: 1500,
           })
-          this.$router.push('/login')
+          setTimeout(() => {
+            this.$router.push('/login')
+          }, 1500)
         })
         .catch((error) => {
           let msg = 'Error de conexión.'

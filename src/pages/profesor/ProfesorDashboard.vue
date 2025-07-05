@@ -37,7 +37,11 @@
             Bienvenido, profesor <span class="prof-name">{{ profesorNombre }}</span
             >.
             <div class="prof-avatar-wrapper">
-              <img src="/icons/foto.png" alt="Avatar Profesor" class="prof-avatar" />
+              <img
+                :src="authStore.user?.fotoUrl || '/icons/foto.png'"
+                alt="Avatar Profesor"
+                class="prof-avatar"
+              />
             </div>
           </div>
           <div class="dashboard-content-row">
